@@ -33,6 +33,8 @@ class IBoard {
 public:
     typedef std::optional<Colour> OptionalColour;
 
+    virtual ~IBoard() = default;
+
     virtual bool whiteToPlay();
     virtual bool blackToPlay();
     virtual Colour getTurn() = 0;
