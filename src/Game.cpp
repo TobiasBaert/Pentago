@@ -49,7 +49,13 @@ void Game::render() {
             // draw circle
             sf::CircleShape circle{80};
             circle.setPosition(xOffset + 20, yOffset + 20);
-            circle.setFillColor(sf::Color::White);
+            circle.setFillColor({128,128,128});
+
+            std::optional<Colour> col = pBoard->colourAt(i,j);
+            if (col) {
+                circle.setFillColor(to_underlying(*col) ? sf::Color::White : sf::Color::Black);
+            }
+
             mWindow.draw(circle);
         }
     }
