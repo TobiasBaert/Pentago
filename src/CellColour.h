@@ -16,6 +16,5 @@ public:
 protected:
     explicit CellColour(short v) : PlayerColour(v) {}
 
-}
-
+};
 #endif //PENTAGO_CELLCOLOUR_H_DATE_27_07_2022_TIME_10_09

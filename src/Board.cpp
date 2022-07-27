@@ -6,25 +6,31 @@
 
 #include <algorithm>
 
-Board::Board() : fullGrid()
+Board::Board() : turn(PlayerColour::White())
+               , fullGrid()
                , northWestQuadrant()
                , northEastQuadrant()
                , southWestQuadrant()
                , southEastQuadrant() {}
 
-void Board::generateMoves(std::vector<const Move> MoveVec) {
-
-}
-
-std::ostream& Board::operator<<(std::ostream& os) {
-    for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j) {
-            os << fullGrid[i * 6 + j] << ' ';
+void Board::syncGridFromQuadrants() {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            fullGrid[i]  [j]    = northWestQuadrant[i][j];
+            fullGrid[i]  [j+3]  = northEastQuadrant[i][j];
+            fullGrid[i+3][j]    = southWestQuadrant[i][j];
+            fullGrid[i+3][j+3]  = southEastQuadrant[i][j];
         }
     }
-    return os;
 }
 
-void Board::synchroniseRepresentations() {
-
+void Board::syncQuadrantsFromGrid() {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            northWestQuadrant[i][j] = fullGrid[i]  [j];
+            northEastQuadrant[i][j] = fullGrid[i]  [j+3];
+            southWestQuadrant[i][j] = fullGrid[i+3][j];
+            southEastQuadrant[i][j] = fullGrid[i+3][j+3];
+        }
+    }
 }

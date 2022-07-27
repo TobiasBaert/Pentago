@@ -15,18 +15,17 @@ public:
 
     Board();
 
-    void generateMoves(std::vector<const Move> MoveVec);
-
-    std::ostream& operator<<(std::ostream& os);
-
 private:
+    PlayerColour turn;
+
     CellColour fullGrid[6][6];
     CellColour northWestQuadrant[3][3];
     CellColour northEastQuadrant[3][3];
     CellColour southWestQuadrant[3][3];
     CellColour southEastQuadrant[3][3];
 
-    void synchroniseRepresentations();
+    void syncGridFromQuadrants();
+    void syncQuadrantsFromGrid();
 };
 
 
