@@ -6,18 +6,16 @@
 #define PENTAGO_GAME_H_DATE_27_07_2022_TIME_09_29
 
 
-#include <SFML/Graphics/RenderWindow.hpp>
+#include "View.h"
+#include "EnumBoard.h"
 
 class Game {
 public:
-
-    explicit Game(unsigned int screensize);
-
     void run();
 
 private:
-    sf::RenderWindow window;
-
+    View view;
+    EnumBoard board;
 };
 
 

@@ -5,17 +5,7 @@
 #ifndef PENTAGO_MOVE_H_DATE_27_07_2022_TIME_10_49
 #define PENTAGO_MOVE_H_DATE_27_07_2022_TIME_10_49
 
-enum class RotationDir {
-    CLOCKWISE,
-    COUNTERCLOCKWISE
-};
 
-enum class Quadrant {
-    NORTHWEST,
-    NORTHEAST,
-    SOUTHWEST,
-    SOUTHEAST
-};
 
 class Move {
 public:

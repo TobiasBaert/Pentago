@@ -6,8 +6,8 @@
 
 #include <SFML/Graphics.hpp>
 
-Game::Game(unsigned int screensize) : window(sf::RenderWindow(sf::VideoMode(screensize, screensize), "Pentago")) {}
-
 void Game::run() {
-
+    while(view.isOpen()) {
+        view.draw(board);
+    }
 }
