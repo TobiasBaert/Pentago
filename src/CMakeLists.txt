@@ -4,7 +4,9 @@ target_sources(Pentago PRIVATE
         IBoard.cpp
         IBoard.h
         EnumBoard.cpp
-        EnumBoard.h)
+        EnumBoard.h
+        RoundedRectangle.cpp
+        RoundedRectangle.h)
 
 target_include_directories(Pentago PRIVATE
         )
