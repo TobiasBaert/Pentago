@@ -6,15 +6,16 @@
 #define PENTAGO_BOARD_H_DATE_27_07_2022_TIME_14_01
 
 #include <optional>
+#include <type_traits>
 
-enum Colour : bool {
+enum class Colour : bool {
     WHITE = true,
     BLACK = false,
 };
 
-enum RotationDir : int {
-    CLOCKWISE = 1,
-    COUNTERCLOCKWISE = -1
+enum class RotationDir {
+    CLOCKWISE,
+    COUNTERCLOCKWISE
 };
 
 enum class Quadrant : int {
@@ -23,6 +24,10 @@ enum class Quadrant : int {
     SOUTHWEST,
     SOUTHEAST
 };
+
+template<typename E> constexpr auto to_underlying(E e) -> typename std::underlying_type<E>::type  {
+    return static_cast<typename std::underlying_type<E>::type>(e);
+}
 
 class IBoard {
 public:

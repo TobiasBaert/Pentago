@@ -9,11 +9,11 @@ bool IBoard::isEmpty(int x, int y) {
 }
 
 bool IBoard::isWhite(int x, int y) {
-    return *colourAt(x,y);
+    return to_underlying(*colourAt(x,y));
 }
 
 bool IBoard::isBlack(int x, int y) {
-    return !*colourAt(x,y);
+    return !to_underlying(*colourAt(x,y));
 }
 
 bool IBoard::isWon() {
@@ -21,9 +21,9 @@ bool IBoard::isWon() {
 }
 
 bool IBoard::whiteToPlay() {
-    return getTurn() == WHITE;
+    return getTurn() == Colour::WHITE;
 }
 
 bool IBoard::blackToPlay() {
-    return getTurn() == BLACK;
+    return getTurn() == Colour::BLACK;
 }

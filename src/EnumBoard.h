@@ -28,10 +28,7 @@ private:
     Colour mTurn;
 
     OptionalColour mGrid[6][6];
-    OptionalColour mNorthWestQuadrant[3][3];
-    OptionalColour mNorthEastQuadrant[3][3];
-    OptionalColour mSouthWestQuadrant[3][3];
-    OptionalColour mSouthEastQuadrant[3][3];
+    OptionalColour mQuadrants[4][3][3];
 
     void syncGridFromQuadrants();
     void syncQuadrantsFromGrid();

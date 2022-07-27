@@ -4,20 +4,17 @@
 
 #include "EnumBoard.h"
 
-EnumBoard::EnumBoard() : mTurn(WHITE)
+EnumBoard::EnumBoard() : mTurn(Colour::WHITE)
                , mGrid()
-               , mNorthWestQuadrant()
-               , mNorthEastQuadrant()
-               , mSouthWestQuadrant()
-               , mSouthEastQuadrant() {}
+               , mQuadrants() {}
 
 void EnumBoard::syncGridFromQuadrants() {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            mGrid[i]  [j]    = mNorthWestQuadrant[i][j];
-            mGrid[i]  [j + 3]  = mNorthEastQuadrant[i][j];
-            mGrid[i + 3][j]    = mSouthWestQuadrant[i][j];
-            mGrid[i + 3][j + 3]  = mSouthEastQuadrant[i][j];
+            mGrid[i]    [j]     = mQuadrants[to_underlying(Quadrant::NORTHWEST)][i][j];
+            mGrid[i]    [j + 3] = mQuadrants[to_underlying(Quadrant::NORTHEAST)][i][j];
+            mGrid[i + 3][j]     = mQuadrants[to_underlying(Quadrant::SOUTHWEST)][i][j];
+            mGrid[i + 3][j + 3] = mQuadrants[to_underlying(Quadrant::SOUTHEAST)][i][j];
         }
     }
 }
@@ -25,10 +22,10 @@ void EnumBoard::syncGridFromQuadrants() {
 void EnumBoard::syncQuadrantsFromGrid() {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            mNorthWestQuadrant[i][j] = mGrid[i]  [j];
-            mNorthEastQuadrant[i][j] = mGrid[i]  [j + 3];
-            mSouthWestQuadrant[i][j] = mGrid[i + 3][j];
-            mSouthEastQuadrant[i][j] = mGrid[i + 3][j + 3];
+            mQuadrants[to_underlying(Quadrant::NORTHWEST)][i][j] = mGrid[i]    [j];
+            mQuadrants[to_underlying(Quadrant::NORTHEAST)][i][j] = mGrid[i]    [j + 3];
+            mQuadrants[to_underlying(Quadrant::SOUTHWEST)][i][j] = mGrid[i + 3][j];
+            mQuadrants[to_underlying(Quadrant::SOUTHEAST)][i][j] = mGrid[i + 3][j + 3];
         }
     }
 }
@@ -49,11 +46,21 @@ void EnumBoard::placeAt(Colour col, int x, int y) {
 }
 
 void EnumBoard::rotate(Quadrant q, RotationDir d) {
-
+    switch (d) {
+        case RotationDir::CLOCKWISE:
+            transpose(mQuadrants[to_underlying(q)]);
+            reverseRows(mQuadrants[to_underlying(q)]);
+            break;
+        case RotationDir::COUNTERCLOCKWISE:
+            reverseRows(mQuadrants[to_underlying(q)]);
+            transpose(mQuadrants[to_underlying(q)]);
+            break;
+    }
+    syncGridFromQuadrants();
 }
 
 void EnumBoard::advanceTurn() {
-    mTurn = (mTurn ? BLACK : WHITE);
+    mTurn = (to_underlying(mTurn) ? Colour::BLACK : Colour::WHITE);
 }
 
 IBoard::OptionalColour EnumBoard::getWinner() {
