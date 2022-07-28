@@ -7,6 +7,10 @@
 
 #include "IBoard.h"
 
+#include <array>
+#include <bitset>
+#include <vector>
+
 class EnumBoard : public IBoard {
 public:
 
@@ -30,10 +34,14 @@ private:
     OptionalColour mGrid[6][6];
     OptionalColour mQuadrants[4][3][3];
 
-    OptionalColour hasWinnerHorizontal();
-    OptionalColour hasWinnerVertical();
-    OptionalColour hasWinnerPriDiagonal();
-    OptionalColour hasWinnerSecDiagonal();
+    using IntPair = std::pair<int,int>;
+    using IntPairVector = std::vector<IntPair>;
+    using OffsetArray = std::array<IntPair,5>;
+    std::bitset<2> checkSeries(const IntPairVector& origins, const OffsetArray& offsets);
+    std::bitset<2> checkHorizontal();
+    std::bitset<2> checkVertical();
+    std::bitset<2> checkPriDiagonal();
+    std::bitset<2> checkSecDiagonal();
 
     void syncGridFromQuadrants();
     void syncQuadrantsFromGrid();

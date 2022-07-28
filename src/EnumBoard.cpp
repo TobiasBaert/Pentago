@@ -2,7 +2,6 @@
 // Created by Tobias Baert on 27/07/2022.
 //
 
-#include <array>
 #include "EnumBoard.h"
 
 EnumBoard::EnumBoard() : mTurn(Colour::WHITE)
@@ -65,59 +64,74 @@ void EnumBoard::advanceTurn() {
 }
 
 IBoard::OptionalColour EnumBoard::getWinner() {
-    OptionalColour optionalColour = mGrid[0][0];
-    if(optionalColour) {
-        Colour colour = *optionalColour;
-        bool series = true;
-        for (int i = 0; i < 4; i++) {
-            series = (mGrid[0][0+i].has_value() && *mGrid[0][0+i] == colour);
-        }
+    std::bitset<2> flags;
 
+    flags |= checkHorizontal();
+    flags |= checkHorizontal();
+    flags |= checkVertical();
+    flags |= checkPriDiagonal();
+
+    if (flags.all() || flags.none()) return {std::nullopt};
+    return (flags[1] ? Colour::WHITE : Colour::BLACK);
+}
+
+
+std::bitset<2> EnumBoard::checkHorizontal() {
+    static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{0,1}, IntPair{0,2}, IntPair{0,3}, IntPair{0,4}};
+    static const IntPairVector origins {
+            IntPair{0,0}, IntPair{0,1},
+            IntPair{1,0}, IntPair{1,1},
+            IntPair{2,0}, IntPair{2,1},
+            IntPair{3,0}, IntPair{3,1},
+            IntPair{4,0}, IntPair{4,1},
+            IntPair{5,0}, IntPair{5,1}
+    };
+    return checkSeries(origins, offsets);
+}
+
+std::bitset<2> EnumBoard::checkVertical() {
+    static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{1,0}, IntPair{2,0}, IntPair{3,0}, IntPair{4,0}};
+    static const IntPairVector origins {
+            IntPair{0,0}, IntPair{0,1}, IntPair{0,2}, IntPair{0,3}, IntPair{0,4}, IntPair{0,5},
+            IntPair{1,0}, IntPair{1,1}, IntPair{1,2}, IntPair{1,3}, IntPair{1,4}, IntPair{0,5},
+    };
+    return checkSeries(origins, offsets);
+}
+
+std::bitset<2> EnumBoard::checkPriDiagonal() {
+    static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{1,1}, IntPair{2,2}, IntPair{3,3}, IntPair{4,4}};
+    static const IntPairVector origins {
+            IntPair{0,0}, IntPair{0,1},
+            IntPair{1,0}, IntPair{1,1},
+    };
+    return checkSeries(origins, offsets);
+}
+
+std::bitset<2> EnumBoard::checkSecDiagonal() {
+    static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{-1,-1}, IntPair{-2,-2}, IntPair{-3,-3}, IntPair{-4,-4}};
+    static const IntPairVector origins {
+            IntPair{4,0}, IntPair{4,1},
+            IntPair{5,0}, IntPair{5,1}
+    };
+    return checkSeries(origins, offsets);
+
+}
+
+std::bitset<2> EnumBoard::checkSeries(const IntPairVector& origins, const OffsetArray& offsets) {
+    std::bitset<2> flags; // for keeping track of winners
+    std::array<OptionalColour, 5> s; // to store the sequence of 5 cells under investigation
+    for (auto & o : origins) {
+        // Fill in s correctly: origin determines starting point, offsets determine direction.
+        for (int i = 0; i < 5; i++) s[i] = mGrid[o.first + offsets[i].first][o.second + offsets[i].second];
+        bool series =
+                std::all_of(s.cbegin(), s.cend(), [] (auto& opt) {return opt.has_value();})  // all filled
+                &&  std::all_of(s.cbegin(), s.cend(), [&s] (auto& opt) {return *opt == *s[0];}); // all same colour
+        // If a series was found, set the corresponding flag: index 1 for WHITE, index 0 for BLACK
+        if (series) flags.set(to_underlying(*s[0]));
     }
+    return flags;
 }
 
-IBoard::OptionalColour EnumBoard::hasWinnerHorizontal() {
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 2; j++) { // consider first two columns
-            OptionalColour cell = mGrid[i][j];
-            if (cell) {
-                Colour colour = *cell;
-                bool series = true;
-                for (int k = 0; series && k < 4; k++) {
-                    series = mGrid[i][j + k].has_value() && *mGrid[i][j + k] == colour;
-                }
-                if (series) return colour;
-            }
-        }
-    }
-    return {std::nullopt};
-}
-
-
-IBoard::OptionalColour EnumBoard::hasWinnerVertical() {
-    for (int i = 0; i < 2; i++) { // first two rows
-        for (int j = 0; j < 6; j++) { // every column
-            OptionalColour cell = mGrid[i][j];
-            if (cell) {
-                Colour colour = *cell;
-                bool series = true;
-                for (int k = 0; series && k < 4; k++) {
-                    series = mGrid[i + k][j].has_value() && *mGrid[i + k][j] == colour;
-                }
-                if (series) return colour;
-            }
-        }
-    }
-    return {std::nullopt};
-}
-
-IBoard::OptionalColour EnumBoard::hasWinnerPriDiagonal() {
-    return IBoard::OptionalColour();
-}
-
-IBoard::OptionalColour EnumBoard::hasWinnerSecDiagonal() {
-    return IBoard::OptionalColour();
-}
 
 bool EnumBoard::isValidCoord(int x, int y) {
     return 0 <= x && x <= 6 && 0 <= y && y <= 6;
