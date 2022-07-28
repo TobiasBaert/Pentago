@@ -16,9 +16,9 @@ public:
 
     EnumBoard();
 
-    Colour getTurn() override;
+    [[nodiscard]] Colour getTurn() const override;
 
-    OptionalColour colourAt(int x, int y) override;
+    [[nodiscard]] OptionalColour colourAt(int x, int y) const override;
 
     void placeAt(Colour col, int x, int y) override;
 
@@ -26,7 +26,7 @@ public:
 
     void advanceTurn() override;
 
-    OptionalColour getWinner() override;
+    [[nodiscard]] OptionalColour getWinner() const override;
 
 private:
     Colour mTurn;
@@ -37,11 +37,11 @@ private:
     using IntPair = std::pair<int,int>;
     using IntPairVector = std::vector<IntPair>;
     using OffsetArray = std::array<IntPair,5>;
-    std::bitset<2> checkSeries(const IntPairVector& origins, const OffsetArray& offsets);
-    std::bitset<2> checkHorizontal();
-    std::bitset<2> checkVertical();
-    std::bitset<2> checkPriDiagonal();
-    std::bitset<2> checkSecDiagonal();
+    [[nodiscard]] std::bitset<2> checkSeries(const IntPairVector& origins, const OffsetArray& offsets) const;
+    [[nodiscard]] std::bitset<2> checkHorizontal() const;
+    [[nodiscard]] std::bitset<2> checkVertical() const;
+    [[nodiscard]] std::bitset<2> checkPriDiagonal() const;
+    [[nodiscard]] std::bitset<2> checkSecDiagonal() const;
 
     void syncGridFromQuadrants();
     void syncQuadrantsFromGrid();

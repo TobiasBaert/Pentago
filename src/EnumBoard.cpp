@@ -30,11 +30,11 @@ void EnumBoard::syncQuadrantsFromGrid() {
     }
 }
 
-Colour EnumBoard::getTurn() {
+Colour EnumBoard::getTurn() const {
     return mTurn;
 }
 
-IBoard::OptionalColour EnumBoard::colourAt(int x, int y) {
+IBoard::OptionalColour EnumBoard::colourAt(int x, int y) const {
     assert(isValidCoord(x, y));
     return mGrid[x][y];
 }
@@ -63,20 +63,20 @@ void EnumBoard::advanceTurn() {
     mTurn = (to_underlying(mTurn) ? Colour::BLACK : Colour::WHITE);
 }
 
-IBoard::OptionalColour EnumBoard::getWinner() {
+IBoard::OptionalColour EnumBoard::getWinner() const {
     std::bitset<2> flags;
 
     flags |= checkHorizontal();
-    flags |= checkHorizontal();
     flags |= checkVertical();
     flags |= checkPriDiagonal();
+    flags |= checkSecDiagonal();
 
     if (flags.all() || flags.none()) return {std::nullopt};
     return (flags[1] ? Colour::WHITE : Colour::BLACK);
 }
 
 
-std::bitset<2> EnumBoard::checkHorizontal() {
+std::bitset<2> EnumBoard::checkHorizontal() const {
     static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{0,1}, IntPair{0,2}, IntPair{0,3}, IntPair{0,4}};
     static const IntPairVector origins {
             IntPair{0,0}, IntPair{0,1},
@@ -89,7 +89,7 @@ std::bitset<2> EnumBoard::checkHorizontal() {
     return checkSeries(origins, offsets);
 }
 
-std::bitset<2> EnumBoard::checkVertical() {
+std::bitset<2> EnumBoard::checkVertical() const {
     static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{1,0}, IntPair{2,0}, IntPair{3,0}, IntPair{4,0}};
     static const IntPairVector origins {
             IntPair{0,0}, IntPair{0,1}, IntPair{0,2}, IntPair{0,3}, IntPair{0,4}, IntPair{0,5},
@@ -98,7 +98,7 @@ std::bitset<2> EnumBoard::checkVertical() {
     return checkSeries(origins, offsets);
 }
 
-std::bitset<2> EnumBoard::checkPriDiagonal() {
+std::bitset<2> EnumBoard::checkPriDiagonal() const {
     static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{1,1}, IntPair{2,2}, IntPair{3,3}, IntPair{4,4}};
     static const IntPairVector origins {
             IntPair{0,0}, IntPair{0,1},
@@ -107,7 +107,7 @@ std::bitset<2> EnumBoard::checkPriDiagonal() {
     return checkSeries(origins, offsets);
 }
 
-std::bitset<2> EnumBoard::checkSecDiagonal() {
+std::bitset<2> EnumBoard::checkSecDiagonal() const {
     static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{-1,-1}, IntPair{-2,-2}, IntPair{-3,-3}, IntPair{-4,-4}};
     static const IntPairVector origins {
             IntPair{4,0}, IntPair{4,1},
@@ -117,7 +117,7 @@ std::bitset<2> EnumBoard::checkSecDiagonal() {
 
 }
 
-std::bitset<2> EnumBoard::checkSeries(const IntPairVector& origins, const OffsetArray& offsets) {
+std::bitset<2> EnumBoard::checkSeries(const IntPairVector& origins, const OffsetArray& offsets) const {
     std::bitset<2> flags; // for keeping track of winners
     std::array<OptionalColour, 5> s; // to store the sequence of 5 cells under investigation
     for (auto & o : origins) {

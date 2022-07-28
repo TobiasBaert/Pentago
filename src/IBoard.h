@@ -35,21 +35,21 @@ public:
 
     virtual ~IBoard() = default;
 
-    virtual bool whiteToPlay();
-    virtual bool blackToPlay();
-    virtual Colour getTurn() = 0;
+    [[nodiscard]] virtual bool isWhiteToPlay() const;
+    [[nodiscard]] virtual bool isBlackToPlay() const;
+    [[nodiscard]] virtual Colour getTurn() const = 0;
 
-    virtual bool isEmpty(int x, int y);
-    virtual bool isWhite(int x, int y);
-    virtual bool isBlack(int x, int y);
-    virtual OptionalColour colourAt(int x, int y) = 0;
+    [[nodiscard]] virtual bool isEmpty(int x, int y) const;
+    [[nodiscard]] virtual bool isWhite(int x, int y) const;
+    [[nodiscard]] virtual bool isBlack(int x, int y) const;
+    [[nodiscard]] virtual OptionalColour colourAt(int x, int y) const = 0;
 
     virtual void placeAt(Colour col, int x, int y) = 0;
     virtual void rotate(Quadrant q, RotationDir d) = 0;
     virtual void advanceTurn() = 0;
 
-    virtual bool isWon();
-    virtual OptionalColour getWinner() = 0;
+    [[nodiscard]] virtual bool isWon() const;
+    [[nodiscard]] virtual OptionalColour getWinner() const = 0;
 };
 
 
