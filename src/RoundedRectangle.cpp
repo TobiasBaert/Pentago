@@ -28,51 +28,31 @@ size_t RoundedRectangle::getPointCount() const {
 }
 
 sf::Vector2f RoundedRectangle::getPoint(std::size_t index) const {
-    return points[index];
+    return mPoints[index / mPointsPerCorner][index % mPointsPerCorner];
 }
 
 void RoundedRectangle::calculatePoints() {
-    points.clear();
-    if (mPointsPerCorner == 1) {
-        // it's a regular rectangle
-        points = std::vector<sf::Vector2f>(std::begin(mOuterCorners), std::end(mOuterCorners));
+    // clear previous points, don't want to try and reuse them
+    for (auto& e : mPoints) e.clear();
+
+    if (mPointsPerCorner == 1) { // it's a regular rectangle...
+        // ... so copy the outer corners
+        for(int i = 0; i < 4; i++) mPoints[i].emplace_back(mOuterCorners[i]);
     } else {
-        const float interval = M_PI_2 / ((float) mPointsPerCorner - 1);
+        const float interval = M_PI_2 / ((float) mPointsPerCorner - 1); // diff in angle between samples of circle
 
         for (size_t i = 0; i < mPointsPerCorner; i++) {
             float theta = interval * (float) i;
-            float xOffset = mRadius * cos(theta);
-            float yOffset = mRadius * sin(theta);
+            float oneToZero = mRadius * cos(theta); // value goes from 1 -> 0 as theta increases
+            float zeroToOne = mRadius * sin(theta); // value goes from 0 -> 1 as theta increases
 
-            points.emplace_back(mInnerCorners[0] + sf::Vector2f{-xOffset, -yOffset});
+            // best to sketch on piece of paper
+            mPoints[0].emplace_back(mInnerCorners[0] + sf::Vector2f{-oneToZero, -zeroToOne});
+            mPoints[1].emplace_back(mInnerCorners[1] + sf::Vector2f{ zeroToOne, -oneToZero});
+            mPoints[2].emplace_back(mInnerCorners[2] + sf::Vector2f{ oneToZero,  zeroToOne});
+            mPoints[3].emplace_back(mInnerCorners[3] + sf::Vector2f{-zeroToOne,  oneToZero});
         }
-
-        for (size_t i = 0; i < mPointsPerCorner; i++) {
-            float theta = interval * (float) i;
-            float xOffset = mRadius * cos(theta);
-            float yOffset = mRadius * sin(theta);
-
-            points.emplace_back(mInnerCorners[1] + sf::Vector2f{ yOffset, -xOffset});
-        }
-
-        for (size_t i = 0; i < mPointsPerCorner; i++) {
-            float theta = interval * (float) i;
-            float xOffset = mRadius * cos(theta);
-            float yOffset = mRadius * sin(theta);
-
-            points.emplace_back(mInnerCorners[2] + sf::Vector2f{ xOffset, yOffset});
-        }
-
-        for (size_t i = 0; i < mPointsPerCorner; i++) {
-            float theta = interval * (float) i;
-            float xOffset = mRadius * cos(theta);
-            float yOffset = mRadius * sin(theta);
-
-            points.emplace_back(mInnerCorners[3] + sf::Vector2f{-yOffset, xOffset});
-        }
-
     }
-    points.shrink_to_fit();
 }
 
 const sf::Vector2f& RoundedRectangle::getSize() const {

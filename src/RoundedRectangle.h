@@ -35,9 +35,9 @@ private:
     sf::Vector2f mSize;             // dimensions of bounding box
     sf::Vector2f mOuterCorners[4];  // corners of bounding box
     sf::Vector2f mInnerCorners[4];  // focus points of the corners
+    std::vector<sf::Vector2f> mPoints[4]; // points of each corner, from upper left corner and proceeding clockwise
     float mRadius;
     size_t mPointsPerCorner;
-    std::vector<sf::Vector2f> points;
 
     void calculatePoints();
 };
