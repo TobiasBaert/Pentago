@@ -2,6 +2,7 @@
 // Created by Tobias Baert on 27/07/2022.
 //
 
+#include <array>
 #include "EnumBoard.h"
 
 EnumBoard::EnumBoard() : mTurn(Colour::WHITE)
@@ -64,7 +65,58 @@ void EnumBoard::advanceTurn() {
 }
 
 IBoard::OptionalColour EnumBoard::getWinner() {
-    return {}; // TODO
+    OptionalColour optionalColour = mGrid[0][0];
+    if(optionalColour) {
+        Colour colour = *optionalColour;
+        bool series = true;
+        for (int i = 0; i < 4; i++) {
+            series = (mGrid[0][0+i].has_value() && *mGrid[0][0+i] == colour);
+        }
+
+    }
+}
+
+IBoard::OptionalColour EnumBoard::hasWinnerHorizontal() {
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 2; j++) { // consider first two columns
+            OptionalColour cell = mGrid[i][j];
+            if (cell) {
+                Colour colour = *cell;
+                bool series = true;
+                for (int k = 0; series && k < 4; k++) {
+                    series = mGrid[i][j + k].has_value() && *mGrid[i][j + k] == colour;
+                }
+                if (series) return colour;
+            }
+        }
+    }
+    return {std::nullopt};
+}
+
+
+IBoard::OptionalColour EnumBoard::hasWinnerVertical() {
+    for (int i = 0; i < 2; i++) { // first two rows
+        for (int j = 0; j < 6; j++) { // every column
+            OptionalColour cell = mGrid[i][j];
+            if (cell) {
+                Colour colour = *cell;
+                bool series = true;
+                for (int k = 0; series && k < 4; k++) {
+                    series = mGrid[i + k][j].has_value() && *mGrid[i + k][j] == colour;
+                }
+                if (series) return colour;
+            }
+        }
+    }
+    return {std::nullopt};
+}
+
+IBoard::OptionalColour EnumBoard::hasWinnerPriDiagonal() {
+    return IBoard::OptionalColour();
+}
+
+IBoard::OptionalColour EnumBoard::hasWinnerSecDiagonal() {
+    return IBoard::OptionalColour();
 }
 
 bool EnumBoard::isValidCoord(int x, int y) {

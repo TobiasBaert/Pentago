@@ -30,6 +30,11 @@ private:
     OptionalColour mGrid[6][6];
     OptionalColour mQuadrants[4][3][3];
 
+    OptionalColour hasWinnerHorizontal();
+    OptionalColour hasWinnerVertical();
+    OptionalColour hasWinnerPriDiagonal();
+    OptionalColour hasWinnerSecDiagonal();
+
     void syncGridFromQuadrants();
     void syncQuadrantsFromGrid();
 
