@@ -11,6 +11,8 @@
 #include <cmath>
 #include <SFML/Graphics/Shape.hpp>
 
+#include "compile_time/math.hpp"
+
 template<size_t pointsPerCorner = 6> class RoundedRectangle : public sf::Shape {
 public:
 
@@ -91,19 +93,38 @@ void RoundedRectangle<1>::calculatePoints() {
 }
 
 template<size_t pointsPerCorner>
+constexpr auto initThetas() {
+    constexpr float interval = M_PI_2 / ((float) pointsPerCorner - 1);
+    return [] {
+        std::array<float, pointsPerCorner> tmp{};
+        for (size_t i = 0; i < pointsPerCorner; i++) tmp[i] = interval * (float) i;
+        return tmp;
+    }();
+}
+
+template<size_t pointsPerCorner>
+constexpr auto initCosines(const std::array<float, pointsPerCorner>& thetas) {
+    std::array<float, pointsPerCorner> tmp{};
+    auto cosMap = [] (auto e) {return compile_time::cos(e);};
+    std::transform(thetas.cbegin(), thetas.cend(), tmp.begin(), cosMap);
+    return tmp;
+}
+
+template<size_t pointsPerCorner>
+constexpr auto initSines(const std::array<float, pointsPerCorner>& thetas) {
+    std::array<float, pointsPerCorner> tmp{};
+    auto sinMap = [] (auto e) {return compile_time::sin(e);};
+    std::transform(thetas.cbegin(), thetas.cend(), tmp.begin(), sinMap);
+    return tmp;
+}
+
+template<size_t pointsPerCorner>
 void RoundedRectangle<pointsPerCorner>::calculatePoints() {
     // the points of each corner are obtained by sampling a quarter-circle at pointsPerCorner equidistant points.
     // interval indicates the difference in angle between subsequent samples.
-    static constexpr float interval = M_PI_2 / ((float) pointsPerCorner - 1);
-    static constexpr std::array<float, pointsPerCorner> thetas;
-    static constexpr std::array<float, pointsPerCorner> cosines;
-    static constexpr std::array<float, pointsPerCorner> sines;
-
-    for (size_t i = 0; i < pointsPerCorner; i++) {
-        thetas[i] = interval * (float) i;
-        cosines[i] = cos(thetas[i]);
-        sines[i] = sin(thetas[i]);
-    }
+    static constexpr std::array<float, pointsPerCorner> thetas = initThetas<pointsPerCorner>();
+    static constexpr std::array<float, pointsPerCorner> cosines = initCosines(thetas);
+    static constexpr std::array<float, pointsPerCorner> sines = initSines(thetas);
 
     for (size_t i = 0; i < pointsPerCorner; i++) {
         float oneToZero = mRadius * cosines[i]; // value goes from 1 -> 0 as theta increases
