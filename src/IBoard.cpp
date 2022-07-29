@@ -4,10 +4,6 @@
 
 #include "IBoard.h"
 
-bool IBoard::isBlackToPlay() const {
-    return getTurn() == Colour::BLACK;
-}
-
 IBoard::OptionalColour IBoard::colourAt(Quadrant q, int x, int y) const {
     x += 3 * (to_underlying(q) / 2);
     y += 3 * (to_underlying(q) % 2);
