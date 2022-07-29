@@ -26,6 +26,20 @@ private:
     void processEvents();
     void render();
 
+    void renderAllQuadrants(sf::Transform t);
+    void renderSingleQuadrant(Quadrant q, sf::Transform t);
+
+    void renderAllCellsForQuadrant(Quadrant q, sf::Transform t);
+    void renderSingleCellForQuadrant(Quadrant q, int row, int col, sf::Transform t);
+
+    static const int SCREEN_SIZE;
+
+    static const float BOARD_MARGIN;
+    static const float INTRA_QUADRANT_MARGIN;
+    static const float CELL_SIZE;
+    static const float QUADRANT_SIZE;
+
+    sf::Color getSFColorAt(Quadrant q, int row, int ˆcol);
 };
 
 

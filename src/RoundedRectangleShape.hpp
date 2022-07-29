@@ -13,10 +13,10 @@
 
 #include "compile_time/math.hpp"
 
-template<size_t pointsPerCorner = 6> class RoundedRectangle : public sf::Shape {
+template<size_t pointsPerCorner = 6> class RoundedRectangleShape : public sf::Shape {
 public:
 
-    RoundedRectangle(const sf::Vector2f& size, float radius);
+    RoundedRectangleShape(const sf::Vector2f& size, float radius);
 
     const sf::Vector2f& getSize() const;
     void setSize(const sf::Vector2f& mSize);
@@ -38,7 +38,7 @@ private:
 };
 
 template<size_t pointsPerCorner>
-RoundedRectangle<pointsPerCorner>::RoundedRectangle(const sf::Vector2f& size, float radius)
+RoundedRectangleShape<pointsPerCorner>::RoundedRectangleShape(const sf::Vector2f& size, float radius)
         : mSize(size)
         , mOuterCorners{ sf::Vector2f{0,0},
                          sf::Vector2f{mSize.x, 0},
@@ -54,41 +54,41 @@ RoundedRectangle<pointsPerCorner>::RoundedRectangle(const sf::Vector2f& size, fl
 }
 
 template<size_t pointsPerCorner>
-size_t RoundedRectangle<pointsPerCorner>::getPointCount() const {
+size_t RoundedRectangleShape<pointsPerCorner>::getPointCount() const {
     return 4 * pointsPerCorner;
 }
 
 template<size_t pointsPerCorner>
-sf::Vector2f RoundedRectangle<pointsPerCorner>::getPoint(std::size_t index) const {
+sf::Vector2f RoundedRectangleShape<pointsPerCorner>::getPoint(std::size_t index) const {
     return mPoints[index / pointsPerCorner][index % pointsPerCorner];
 }
 
 template<>
-const sf::Vector2f& RoundedRectangle<>::getSize() const {
+const sf::Vector2f& RoundedRectangleShape<>::getSize() const {
     return mSize;
 }
 
 template<>
-void RoundedRectangle<>::setSize(const sf::Vector2f& size) {
+void RoundedRectangleShape<>::setSize(const sf::Vector2f& size) {
     mSize = size;
     calculatePoints();
     update();
 }
 
 template<>
-float RoundedRectangle<>::getRadius() const {
+float RoundedRectangleShape<>::getRadius() const {
     return mRadius;
 }
 
 template<>
-void RoundedRectangle<>::setRadius(float radius) {
+void RoundedRectangleShape<>::setRadius(float radius) {
     mRadius = radius;
     calculatePoints();
     update();
 }
 
 template<>
-void RoundedRectangle<1>::calculatePoints() {
+void RoundedRectangleShape<1>::calculatePoints() {
     for (int i = 0; i < 4; i++) mPoints[i][0] = mOuterCorners[i];
 }
 
@@ -119,7 +119,7 @@ constexpr auto initSines(const std::array<float, pointsPerCorner>& thetas) {
 }
 
 template<size_t pointsPerCorner>
-void RoundedRectangle<pointsPerCorner>::calculatePoints() {
+void RoundedRectangleShape<pointsPerCorner>::calculatePoints() {
     // the points of each corner are obtained by sampling a quarter-circle at pointsPerCorner equidistant points.
     // interval indicates the difference in angle between subsequent samples.
     static constexpr std::array<float, pointsPerCorner> thetas = initThetas<pointsPerCorner>();
