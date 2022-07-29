@@ -34,7 +34,6 @@ private:
 
     static const int SCREEN_SIZE;
 
-    static const float BOARD_MARGIN;
     static const float INTRA_QUADRANT_MARGIN;
     static const float CELL_SIZE;
     static const float QUADRANT_SIZE;
