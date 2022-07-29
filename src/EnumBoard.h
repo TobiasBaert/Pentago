@@ -20,6 +20,8 @@ public:
 
     [[nodiscard]] OptionalColour colourAt(int x, int y) const override;
 
+    [[nodiscard]] OptionalColour colourAt(Quadrant q, int x, int y) const override;
+
     void placeAt(Colour col, int x, int y) override;
 
     void rotate(Quadrant q, RotationDir d) override;
@@ -46,10 +48,12 @@ private:
     void syncGridFromQuadrants();
     void syncQuadrantsFromGrid();
 
-    static bool isValidCoord(int x, int y);
+    static bool isValidGlobalCoord(int x, int y);
+    static bool isValidQuadrantCoord(int x, int y);
 
     static void reverseRows(OptionalColour q[3][3]);
     static void transpose(OptionalColour q[3][3]);
+
 };
 
 

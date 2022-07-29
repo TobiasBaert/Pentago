@@ -42,6 +42,7 @@ public:
     [[nodiscard]] virtual bool isEmpty(int x, int y) const;
     [[nodiscard]] virtual bool isWhite(int x, int y) const;
     [[nodiscard]] virtual bool isBlack(int x, int y) const;
+    [[nodiscard]] virtual OptionalColour colourAt(Quadrant q, int x, int y) const;
     [[nodiscard]] virtual OptionalColour colourAt(int x, int y) const = 0;
 
     virtual void placeAt(Colour col, int x, int y) = 0;

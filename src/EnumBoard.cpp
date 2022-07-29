@@ -35,12 +35,18 @@ Colour EnumBoard::getTurn() const {
 }
 
 IBoard::OptionalColour EnumBoard::colourAt(int x, int y) const {
-    assert(isValidCoord(x, y));
+    assert(isValidGlobalCoord(x, y));
     return mGrid[x][y];
 }
 
+
+IBoard::OptionalColour EnumBoard::colourAt(Quadrant q, int x, int y) const {
+    assert(isValidQuadrantCoord(x,y));
+    return mQuadrants[to_underlying(q)][x][y];
+}
+
 void EnumBoard::placeAt(Colour col, int x, int y) {
-    assert(isValidCoord(x,y));
+    assert(isValidGlobalCoord(x, y));
     mGrid[x][y] = col;
     syncQuadrantsFromGrid();
 }
@@ -133,8 +139,12 @@ std::bitset<2> EnumBoard::checkSeries(const IntPairVector& origins, const Offset
 }
 
 
-bool EnumBoard::isValidCoord(int x, int y) {
-    return 0 <= x && x <= 6 && 0 <= y && y <= 6;
+bool EnumBoard::isValidGlobalCoord(int x, int y) {
+    return 0 <= x && x < 6 && 0 <= y && y < 6;
+}
+
+bool EnumBoard::isValidQuadrantCoord(int x, int y) {
+    return 0 <= x && x < 3 && 0 <= y && y < 3;
 }
 
 void EnumBoard::reverseRows(IBoard::OptionalColour (* q)[3]) {
