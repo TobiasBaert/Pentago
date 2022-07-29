@@ -39,7 +39,7 @@ private:
     static const float CELL_SIZE;
     static const float QUADRANT_SIZE;
 
-    sf::Color getSFColorAt(Quadrant q, int row, int ˆcol);
+    sf::Color getSFColorAt(Quadrant q, int row, int col);
 };
 
 
