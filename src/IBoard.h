@@ -35,13 +35,8 @@ public:
 
     virtual ~IBoard() = default;
 
-    [[nodiscard]] virtual bool isWhiteToPlay() const;
-    [[nodiscard]] virtual bool isBlackToPlay() const;
     [[nodiscard]] virtual Colour getTurn() const = 0;
 
-    [[nodiscard]] virtual bool isEmpty(int x, int y) const;
-    [[nodiscard]] virtual bool isWhite(int x, int y) const;
-    [[nodiscard]] virtual bool isBlack(int x, int y) const;
     [[nodiscard]] virtual OptionalColour colourAt(Quadrant q, int x, int y) const;
     [[nodiscard]] virtual OptionalColour colourAt(int x, int y) const = 0;
 
