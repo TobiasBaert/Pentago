@@ -99,7 +99,7 @@ void Game::renderSingleCellForQuadrant(const Quadrant q, int row, int col, const
 }
 
 sf::Color Game::getSFColorAt(Quadrant q, int row, int col) {
-    std::optional<Colour> c = pBoard->colourAt(q, row, col);
+    std::optional<Colour> c = pBoard->getColourAt(q, row, col);
     if (c) return (*c == Colour::WHITE ? sf::Color::White : sf::Color::Black);
     return sf::Color{150,0,0};
 }
