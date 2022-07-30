@@ -13,8 +13,12 @@ enum class Colour : bool {
     BLACK = false,
 };
 
-enum class RotationDir {
-    CLOCKWISE,
+Colour operator!(Colour c) {
+    return (c == Colour::WHITE ? Colour::BLACK : Colour::WHITE);
+}
+
+enum class RotationDir : int {
+    CLOCKWISE = 0,
     COUNTERCLOCKWISE
 };
 
@@ -37,14 +41,14 @@ public:
 
     [[nodiscard]] virtual Colour getTurn() const = 0;
 
-    [[nodiscard]] virtual OptionalColour colourAt(Quadrant q, int x, int y) const;
-    [[nodiscard]] virtual OptionalColour colourAt(int x, int y) const = 0;
+    [[nodiscard]] virtual OptionalColour getColourAt(Quadrant q, int x, int y) const;
+    [[nodiscard]] virtual OptionalColour getColourAt(int x, int y) const = 0;
 
-    virtual void placeAt(Colour col, int x, int y) = 0;
+    virtual void placeAt(Colour colour, int row, int col) = 0;
     virtual void rotate(Quadrant q, RotationDir d) = 0;
     virtual void advanceTurn() = 0;
 
-    [[nodiscard]] virtual bool isWon() const;
+    [[nodiscard]] virtual bool hasEnded() const = 0;
     [[nodiscard]] virtual OptionalColour getWinner() const = 0;
 };
 

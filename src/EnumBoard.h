@@ -18,9 +18,9 @@ public:
 
     [[nodiscard]] Colour getTurn() const override;
 
-    [[nodiscard]] OptionalColour colourAt(int x, int y) const override;
+    [[nodiscard]] OptionalColour getColourAt(int x, int y) const override;
 
-    [[nodiscard]] OptionalColour colourAt(Quadrant q, int x, int y) const override;
+    [[nodiscard]] OptionalColour getColourAt(Quadrant q, int x, int y) const override;
 
     void placeAt(Colour col, int x, int y) override;
 

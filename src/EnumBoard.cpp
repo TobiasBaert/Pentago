@@ -34,13 +34,13 @@ Colour EnumBoard::getTurn() const {
     return mTurn;
 }
 
-IBoard::OptionalColour EnumBoard::colourAt(int x, int y) const {
+IBoard::OptionalColour EnumBoard::getColourAt(int x, int y) const {
     assert(isValidGlobalCoord(x, y));
     return mGrid[x][y];
 }
 
 
-IBoard::OptionalColour EnumBoard::colourAt(Quadrant q, int x, int y) const {
+IBoard::OptionalColour EnumBoard::getColourAt(Quadrant q, int x, int y) const {
     assert(isValidQuadrantCoord(x,y));
     return mQuadrants[to_underlying(q)][x][y];
 }

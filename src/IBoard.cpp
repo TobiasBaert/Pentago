@@ -4,12 +4,8 @@
 
 #include "IBoard.h"
 
-IBoard::OptionalColour IBoard::colourAt(Quadrant q, int x, int y) const {
+IBoard::OptionalColour IBoard::getColourAt(Quadrant q, int x, int y) const {
     x += 3 * (to_underlying(q) / 2);
     y += 3 * (to_underlying(q) % 2);
-    return colourAt(x,y);
-}
-
-bool IBoard::isWon() const {
-    return getWinner().has_value();
+    return getColourAt(x, y);
 }
