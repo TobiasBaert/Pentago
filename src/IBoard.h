@@ -13,7 +13,7 @@ enum class Colour : bool {
     BLACK = false,
 };
 
-Colour operator!(Colour c) {
+inline Colour operator!(Colour c) {
     return (c == Colour::WHITE ? Colour::BLACK : Colour::WHITE);
 }
 
