@@ -16,6 +16,8 @@ public:
 
     EnumBoard();
 
+    void reset() override;
+
     [[nodiscard]] Colour getTurn() const override;
 
     [[nodiscard]] OptionalColour getColourAt(int x, int y) const override;
@@ -28,31 +30,48 @@ public:
 
     void advanceTurn() override;
 
+    [[nodiscard]] bool hasEnded() const override;
+
     [[nodiscard]] OptionalColour getWinner() const override;
 
 private:
-    Colour mTurn;
 
-    OptionalColour mGrid[6][6];
-    OptionalColour mQuadrants[4][3][3];
+    /// Board state
+    using Grid = std::array<std::array<OptionalColour, 6>, 6>;
+    using QuadrantGrid = std::array<std::array<OptionalColour, 3>, 3>;
+
+    Colour mTurn;
+    Grid mGrid;
+    std::array<QuadrantGrid, 4> mQuadrants;
+
+    /// Victory detection
+    bool mHasEnded;
+    std::bitset<2> mHasWinningPosition;
+
+    void syncVictoryData();
 
     using IntPair = std::pair<int,int>;
     using IntPairVector = std::vector<IntPair>;
     using OffsetArray = std::array<IntPair,5>;
-    [[nodiscard]] std::bitset<2> checkSeries(const IntPairVector& origins, const OffsetArray& offsets) const;
-    [[nodiscard]] std::bitset<2> checkHorizontal() const;
-    [[nodiscard]] std::bitset<2> checkVertical() const;
-    [[nodiscard]] std::bitset<2> checkPriDiagonal() const;
-    [[nodiscard]] std::bitset<2> checkSecDiagonal() const;
 
+    bool isFullyOccupied();
+
+    void checkHorizontal();
+    void checkVertical();
+    void checkPriDiagonal();
+    void checkSecDiagonal();
+    void checkSeries(const IntPairVector& origins, const OffsetArray& offsets);
+
+    /// Synchronisation
     void syncGridFromQuadrants();
     void syncQuadrantsFromGrid();
 
+    /// Utilities
     static bool isValidGlobalCoord(int x, int y);
     static bool isValidQuadrantCoord(int x, int y);
 
-    static void reverseRows(OptionalColour q[3][3]);
-    static void transpose(OptionalColour q[3][3]);
+    static void reverseRows(QuadrantGrid q);
+    static void transpose(QuadrantGrid q);
 
 };
 

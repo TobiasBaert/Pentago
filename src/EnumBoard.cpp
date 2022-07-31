@@ -6,7 +6,15 @@
 
 EnumBoard::EnumBoard() : mTurn(Colour::WHITE)
                , mGrid()
-               , mQuadrants() {}
+               , mQuadrants()
+               , mHasEnded(false) {}
+
+void EnumBoard::reset() {
+    mTurn = Colour::WHITE;
+    mGrid.fill({});
+    syncQuadrantsFromGrid();
+    syncVictoryData();
+}
 
 void EnumBoard::syncGridFromQuadrants() {
     for (int i = 0; i < 3; i++) {
@@ -69,20 +77,36 @@ void EnumBoard::advanceTurn() {
     mTurn = (to_underlying(mTurn) ? Colour::BLACK : Colour::WHITE);
 }
 
-IBoard::OptionalColour EnumBoard::getWinner() const {
-    std::bitset<2> flags;
-
-    flags |= checkHorizontal();
-    flags |= checkVertical();
-    flags |= checkPriDiagonal();
-    flags |= checkSecDiagonal();
-
-    if (flags.all() || flags.none()) return {std::nullopt};
-    return (flags[1] ? Colour::WHITE : Colour::BLACK);
+bool EnumBoard::hasEnded() const {
+    return mHasEnded;
 }
 
+IBoard::OptionalColour EnumBoard::getWinner() const {
+    OptionalColour result;
 
-std::bitset<2> EnumBoard::checkHorizontal() const {
+    if (mHasWinningPosition[to_underlying(Colour::WHITE)]) result = Colour::WHITE;
+    if (mHasWinningPosition[to_underlying(Colour::BLACK)]) result = Colour::BLACK;
+    if (mHasWinningPosition.all()) result = {std::nullopt};
+
+    return result;
+}
+
+void EnumBoard::syncVictoryData() {
+    mHasWinningPosition.reset();
+
+    checkHorizontal();
+    checkVertical();
+    checkPriDiagonal();
+    checkSecDiagonal();
+
+    mHasEnded = mHasWinningPosition.any() || isFullyOccupied();
+}
+
+bool EnumBoard::isFullyOccupied() {
+    return std::all_of(mGrid[0].begin(), mGrid[5].end(), [](auto e){return e.has_value();});
+}
+
+void EnumBoard::checkHorizontal() {
     static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{0,1}, IntPair{0,2}, IntPair{0,3}, IntPair{0,4}};
     static const IntPairVector origins {
             IntPair{0,0}, IntPair{0,1},
@@ -95,7 +119,7 @@ std::bitset<2> EnumBoard::checkHorizontal() const {
     return checkSeries(origins, offsets);
 }
 
-std::bitset<2> EnumBoard::checkVertical() const {
+void EnumBoard::checkVertical() {
     static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{1,0}, IntPair{2,0}, IntPair{3,0}, IntPair{4,0}};
     static const IntPairVector origins {
             IntPair{0,0}, IntPair{0,1}, IntPair{0,2}, IntPair{0,3}, IntPair{0,4}, IntPair{0,5},
@@ -104,7 +128,7 @@ std::bitset<2> EnumBoard::checkVertical() const {
     return checkSeries(origins, offsets);
 }
 
-std::bitset<2> EnumBoard::checkPriDiagonal() const {
+void EnumBoard::checkPriDiagonal() {
     static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{1,1}, IntPair{2,2}, IntPair{3,3}, IntPair{4,4}};
     static const IntPairVector origins {
             IntPair{0,0}, IntPair{0,1},
@@ -113,7 +137,7 @@ std::bitset<2> EnumBoard::checkPriDiagonal() const {
     return checkSeries(origins, offsets);
 }
 
-std::bitset<2> EnumBoard::checkSecDiagonal() const {
+void EnumBoard::checkSecDiagonal() {
     static constexpr OffsetArray offsets {IntPair{0,0}, IntPair{-1,-1}, IntPair{-2,-2}, IntPair{-3,-3}, IntPair{-4,-4}};
     static const IntPairVector origins {
             IntPair{4,0}, IntPair{4,1},
@@ -123,8 +147,7 @@ std::bitset<2> EnumBoard::checkSecDiagonal() const {
 
 }
 
-std::bitset<2> EnumBoard::checkSeries(const IntPairVector& origins, const OffsetArray& offsets) const {
-    std::bitset<2> flags; // for keeping track of winners
+void EnumBoard::checkSeries(const IntPairVector& origins, const OffsetArray& offsets) {
     std::array<OptionalColour, 5> s; // to store the sequence of 5 cells under investigation
     for (auto & o : origins) {
         // Fill in s correctly: origin determines starting point, offsets determine direction.
@@ -133,9 +156,8 @@ std::bitset<2> EnumBoard::checkSeries(const IntPairVector& origins, const Offset
                 std::all_of(s.cbegin(), s.cend(), [] (auto& opt) {return opt.has_value();})  // all filled
                 &&  std::all_of(s.cbegin(), s.cend(), [&s] (auto& opt) {return *opt == *s[0];}); // all same colour
         // If a series was found, set the corresponding flag: index 1 for WHITE, index 0 for BLACK
-        if (series) flags.set(to_underlying(*s[0]));
+        if (series) mHasWinningPosition.set(to_underlying(*s[0]));
     }
-    return flags;
 }
 
 
@@ -147,14 +169,12 @@ bool EnumBoard::isValidQuadrantCoord(int x, int y) {
     return 0 <= x && x < 3 && 0 <= y && y < 3;
 }
 
-void EnumBoard::reverseRows(IBoard::OptionalColour (* q)[3]) {
-    for (int i = 0; i < 3; i++) std::swap(*q, *(q+2));
+void EnumBoard::reverseRows(QuadrantGrid q) {
+    std::swap(q[0], q[2]);
 }
 
-void EnumBoard::transpose(IBoard::OptionalColour (* q)[3]) {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            std::swap(*(q[i]+j), *(q[j]+i));
-        }
-    }
+void EnumBoard::transpose(QuadrantGrid q) {
+    std::swap(q[0][1], q[1][0]);
+    std::swap(q[1][2], q[2][1]);
+    std::swap(q[0][2], q[2][0]);
 }

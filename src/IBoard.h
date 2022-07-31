@@ -29,7 +29,7 @@ enum class Quadrant : int {
     SOUTHEAST
 };
 
-template<typename E> constexpr auto to_underlying(E e) -> typename std::underlying_type<E>::type  {
+template<typename E> inline constexpr auto to_underlying(E e) -> typename std::underlying_type<E>::type  {
     return static_cast<typename std::underlying_type<E>::type>(e);
 }
 
@@ -38,6 +38,8 @@ public:
     typedef std::optional<Colour> OptionalColour;
 
     virtual ~IBoard() = default;
+
+    virtual void reset() = 0;
 
     [[nodiscard]] virtual Colour getTurn() const = 0;
 

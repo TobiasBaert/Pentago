@@ -4,20 +4,19 @@
 
 #include "BitBoardRepresentation.h"
 
-#include <iostream>
+BitBoardRepresentation::BitBoardRepresentation()
+    : mTurn(Colour::WHITE)
+    , mHasEnded(false)
+    , mWhiteHasWinningPosition(false)
+    , mBlackHasWinningPosition(false) {}
 
-std::ostream& operator<<(std::ostream& os, std::bitset<36> bb) {
-    for (int i = 5; i >= 0; i--) {
-        for (int j = 0; j < 6; j++) {
-            size_t index = 6 * i + j;
-            os << bb[index] << "  ";
-        }
-        os << std::endl;
-    }
-    return os;
+
+void BitBoardRepresentation::reset() {
+    mTurn = Colour::WHITE;
+    mWhite.reset();
+    mBlack.reset();
+    syncDerivedFields();
 }
-
-BitBoardRepresentation::BitBoardRepresentation() : mTurn(Colour::WHITE) {}
 
 Colour BitBoardRepresentation::getTurn() const {
     return mTurn;
@@ -32,10 +31,19 @@ IBoard::OptionalColour BitBoardRepresentation::getColourAt(int x, int y) const {
 
 void BitBoardRepresentation::placeAt(Colour col, int x, int y) {
     mColours[to_underlying(col)].set(getIndexFrom(x, y));
+
+    syncDerivedFields();
 }
 
 void BitBoardRepresentation::rotate(Quadrant q, RotationDir d) {
-    rotate<q,d>();
+    static constexpr void (BitBoardRepresentation::*table[2]) (Quadrant q) = {
+            &BitBoardRepresentation::rotateQuadrant90Clockwise,
+            &BitBoardRepresentation::rotateQuadrant90CounterClockwise
+    };
+
+    (this->*(table[to_underlying(d)]))(q);
+
+    syncDerivedFields();
 }
 
 void BitBoardRepresentation::advanceTurn() {
@@ -43,7 +51,7 @@ void BitBoardRepresentation::advanceTurn() {
 }
 
 bool BitBoardRepresentation::hasEnded() const {
-    return mIsEnded;
+    return mHasEnded;
 }
 
 IBoard::OptionalColour BitBoardRepresentation::getWinner() const {
@@ -52,6 +60,13 @@ IBoard::OptionalColour BitBoardRepresentation::getWinner() const {
             {{Colour::WHITE}, {std::nullopt}}
     };
     return table[mWhiteHasWinningPosition][mBlackHasWinningPosition];
+}
+
+void BitBoardRepresentation::syncDerivedFields() {
+    mOccupancy = mWhite | mBlack;
+    mWhiteHasWinningPosition = hasWinningPosition(mWhite);
+    mBlackHasWinningPosition = hasWinningPosition(mBlack);
+    mHasEnded = mWhiteHasWinningPosition || mBlackHasWinningPosition || mOccupancy.all();
 }
 
 size_t BitBoardRepresentation::getIndexFrom(int row, int col) {
@@ -65,27 +80,17 @@ bool BitBoardRepresentation::hasWinningPosition(BitBoard x) { // 36 ops + check
             (x & (x << 5) & (x << 10) & (x << 15) & (x << 20) & BitBoard(0030300000000)) ).any();
 }
 
-void BitBoardRepresentation::syncDerivedBoards() {
-    mOccupancy = mWhite | mBlack;
+void BitBoardRepresentation::rotateQuadrant90Clockwise(Quadrant q) {
+    reflectQuadrantHorizontally(q);
+    reflectQuadrantDiagonally(q);
 }
 
-void BitBoardRepresentation::updateVictoryData() {
-    mWhiteHasWinningPosition = hasWinningPosition(mWhite);
-    mBlackHasWinningPosition = hasWinningPosition(mBlack);
-    mIsEnded = mWhiteHasWinningPosition | mBlackHasWinningPosition | mOccupancy.all();
+void BitBoardRepresentation::rotateQuadrant90CounterClockwise(Quadrant q) {
+    reflectQuadrantDiagonally(q);
+    reflectQuadrantHorizontally(q);
 }
 
-void BitBoardRepresentation::flipQuadrant90Clockwise(Quadrant q) {
-    flipQuadrantHorizontally(q);
-    flipQuadrantDiagonally(q);
-}
-
-void BitBoardRepresentation::flipQuadrant90CounterClockwise(Quadrant q) {
-    flipQuadrantDiagonally(q);
-    flipQuadrantHorizontally(q);
-}
-
-void BitBoardRepresentation::flipQuadrantHorizontally(Quadrant q) {
+void BitBoardRepresentation::reflectQuadrantHorizontally(Quadrant q) {
     static constexpr BitBoard swap1Masks[4] = { // bottom row for every quadrant
             BitBoard(0000007000000), BitBoard(0000070000000),
             BitBoard(0000000000007), BitBoard(0000000000070)
@@ -97,7 +102,7 @@ void BitBoardRepresentation::flipQuadrantHorizontally(Quadrant q) {
     deltaSwapInPlace(mBlack, swap1Masks[index], 12);
 }
 
-void BitBoardRepresentation::flipQuadrantDiagonally(Quadrant q) {
+void BitBoardRepresentation::reflectQuadrantDiagonally(Quadrant q) {
     static constexpr BitBoard swap2Masks[4] = { // first sub-diagonal for every quadrant
             BitBoard(0000102000000), BitBoard(0001020000000),
             BitBoard(0000000000102), BitBoard(0000000001020)

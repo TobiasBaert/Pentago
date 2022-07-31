@@ -13,6 +13,8 @@ class BitBoardRepresentation : public IBoard {
 public:
     BitBoardRepresentation();
 
+    void reset() override;
+
     [[nodiscard]] Colour getTurn() const override;
 
     [[nodiscard]] OptionalColour getColourAt(int x, int y) const override;
@@ -30,6 +32,8 @@ public:
 private:
     using BitBoard = std::bitset<36>;
 
+    /// Board state
+    Colour mTurn;
     BitBoard mColours[2];
     BitBoard& mWhite = mColours[to_underlying(Colour::WHITE)];
     BitBoard& mBlack = mColours[to_underlying(Colour::BLACK)];
@@ -37,34 +41,23 @@ private:
     /// Derived boards
     BitBoard mOccupancy;
 
-    void syncDerivedBoards();
-
-    Colour mTurn;
-
-    bool mIsEnded;
+    /// Victory detection
+    bool mHasEnded;
     bool mWhiteHasWinningPosition;
     bool mBlackHasWinningPosition;
 
-    constexpr static BitBoard quadrantMasks[4] = {
-        BitBoard(0070707000000), BitBoard(0707070000000),
-        BitBoard(0000000070707), BitBoard(0000000707070)
-    };
+    inline void syncDerivedFields();
+
+    /// Rotations
+    inline void rotateQuadrant90Clockwise(Quadrant q);
+    inline void rotateQuadrant90CounterClockwise(Quadrant q);
+    inline void reflectQuadrantHorizontally(Quadrant q);
+    inline void reflectQuadrantDiagonally(Quadrant q);
 
     /// Utilities
-    static size_t getIndexFrom(int row, int col);
-
-    static bool hasWinningPosition(BitBoard x);
-
-    void updateVictoryData();
-
-    static void deltaSwapInPlace(BitBoard& x, BitBoard select, size_t delta);
-
-    void flipQuadrant90Clockwise(Quadrant q);
-    void flipQuadrant90CounterClockwise(Quadrant q);
-    void flipQuadrantHorizontally(Quadrant q);
-    void flipQuadrantDiagonally(Quadrant q);
-
-
+    inline static size_t getIndexFrom(int row, int col);
+    inline static bool hasWinningPosition(BitBoard x);
+    inline static void deltaSwapInPlace(BitBoard& x, BitBoard select, size_t delta);
 };
 
 
