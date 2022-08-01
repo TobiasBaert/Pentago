@@ -11,6 +11,7 @@
 namespace Util {
     /*
      * Necessary to fill std::array for types without a default constructor.
+     * Source: https://stackoverflow.com/questions/57756557/initializing-a-stdarray-with-a-constant-value
      */
     template <typename T, std::size_t ... Is>
     constexpr std::array<T, sizeof...(Is)>
