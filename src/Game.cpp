@@ -7,26 +7,38 @@
 #include <iostream>
 #include <optional>
 
-#include "RoundedRectangleShape.hpp"
-
-const int Game::SCREEN_SIZE                 = 1200;
-const float Game::CELL_SIZE                 = 150.f;
-const float Game::QUADRANT_SIZE             = 3 * CELL_SIZE;
-const float Game::INTRA_QUADRANT_MARGIN     = 15.f;
-
-Game::Game() : mWindow(sf::VideoMode(SCREEN_SIZE,SCREEN_SIZE)
-             , "Pentago"
-             , sf::Style::Close | sf::Style::Titlebar) {
+Game::Game() {
+    configureQuadrantShapes();
+    configureCellShapes();
     mWindow.setFramerateLimit(60);
-    pBoard->placeAt(Colour::WHITE, 1, 3);
 }
+
+void Game::configureQuadrantShapes() {
+    for (auto& qdShape : mQuadrantShapes) {
+        qdShape.setOrigin({QUADRANT_SIZE / 2, QUADRANT_SIZE / 2});
+        qdShape.setFillColor({200,0,0});
+        qdShape.setOutlineColor(sf::Color::Black);
+        qdShape.setOutlineThickness(2.f);
+    }
+}
+
+void Game::configureCellShapes() {
+    for (auto& row : mCircleShapes) {
+        for (auto& shape : row) {
+            shape.setOrigin({CIRCLE_RADIUS, CIRCLE_RADIUS});
+            shape.setFillColor(sf::Color{150,0,0});
+            shape.setOutlineColor(sf::Color::Black);
+            shape.setOutlineThickness(2.f);
+        }
+    }
+}
+
 
 void Game::run() {
     while (mWindow.isOpen()) {
         processEvents();
         render();
     }
-
 }
 
 void Game::processEvents() {
@@ -37,8 +49,9 @@ void Game::processEvents() {
         if (event.type == sf::Event::Closed)
             mWindow.close();
 
-        if (event.type == sf::Event::MouseButtonPressed)
+        if (event.type == sf::Event::MouseButtonPressed) {
             std::cout << event.mouseButton.x << ' ' << event.mouseButton.y << std::endl;
+        }
     }
 }
 
@@ -62,18 +75,8 @@ void Game::renderAllQuadrants(const sf::Transform t) {
 }
 
 void Game::renderSingleQuadrant(const Quadrant q, const sf::Transform t) {
-    static const sf::Vector2f QUADRANT_CENTER_OFFSET {QUADRANT_SIZE / 2, QUADRANT_SIZE / 2};
-
-    // Creating & configuring the shape
-    RoundedRectangleShape<10> qdShape {{QUADRANT_SIZE, QUADRANT_SIZE}, 0.1f * QUADRANT_SIZE};
-    qdShape.setOrigin(QUADRANT_CENTER_OFFSET);
-    qdShape.setFillColor({200,0,0});
-    qdShape.setOutlineColor(sf::Color::Black);
-    qdShape.setOutlineThickness(2.f);
-
     auto v = sf::Transform(t).rotate(0);
-
-    mWindow.draw(qdShape, v);
+    mWindow.draw(mQuadrantShapes[to_underlying(q)], v);
     renderAllCellsForQuadrant(q, v);
 }
 
@@ -87,15 +90,9 @@ void Game::renderAllCellsForQuadrant(const Quadrant q, const sf::Transform t) {
 }
 
 void Game::renderSingleCellForQuadrant(const Quadrant q, int row, int col, const sf::Transform t) {
-    static const float CIRCLE_RADIUS = 0.6f * CELL_SIZE / 2;
-
-    sf::CircleShape circleShape{CIRCLE_RADIUS};
-    circleShape.setOrigin({CIRCLE_RADIUS, CIRCLE_RADIUS});
-    circleShape.setFillColor(getSFColorAt(q, row, col));
-    circleShape.setOutlineColor(sf::Color::Black);
-    circleShape.setOutlineThickness(2.f);
-
-    mWindow.draw(circleShape, t);
+    sf::CircleShape& s = mCircleShapes[row][col];
+    s.setFillColor(getSFColorAt(q, row, col));
+    mWindow.draw(s, t);
 }
 
 sf::Color Game::getSFColorAt(Quadrant q, int row, int col) {

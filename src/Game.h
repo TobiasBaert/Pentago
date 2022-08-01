@@ -11,6 +11,8 @@
 
 #include "IBoard.h"
 #include "EnumBoard.h"
+#include "RoundedRectangleShape.hpp"
+#include "Utilities.h"
 
 class Game {
 public:
@@ -21,22 +23,40 @@ public:
 
 private:
     std::unique_ptr<IBoard> pBoard = std::unique_ptr<IBoard>(new EnumBoard());
-    sf::RenderWindow mWindow;
+
+    static constexpr int SCREEN_SIZE = 1200;
+    static constexpr float CELL_SIZE = 150.f;
+    static constexpr float QUADRANT_SIZE = 3 * CELL_SIZE;
+    static constexpr float INTRA_QUADRANT_MARGIN = 15.f;
+    static constexpr float CIRCLE_RADIUS = 0.6f * CELL_SIZE / 2;
+
+
+    sf::RenderWindow mWindow{sf::VideoMode(SCREEN_SIZE, SCREEN_SIZE), "Pentago",
+                             sf::Style::Close | sf::Style::Titlebar};
+
+    std::array<RoundedRectangleShape<5>, 4> mQuadrantShapes
+        = Util::create_array<4, RoundedRectangleShape<5>>(
+                {{QUADRANT_SIZE, QUADRANT_SIZE}, 0.1f * QUADRANT_SIZE});
+
+    std::array<std::array<sf::CircleShape, 6>, 6> mCircleShapes {{
+        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
+        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
+        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
+        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
+        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
+        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
+    }};
+
+    void configureQuadrantShapes();
+    void configureCellShapes();
 
     void processEvents();
-    void render();
 
+    void render();
     void renderAllQuadrants(sf::Transform t);
     void renderSingleQuadrant(Quadrant q, sf::Transform t);
-
     void renderAllCellsForQuadrant(Quadrant q, sf::Transform t);
     void renderSingleCellForQuadrant(Quadrant q, int row, int col, sf::Transform t);
-
-    static const int SCREEN_SIZE;
-
-    static const float INTRA_QUADRANT_MARGIN;
-    static const float CELL_SIZE;
-    static const float QUADRANT_SIZE;
 
     sf::Color getSFColorAt(Quadrant q, int row, int col);
 };

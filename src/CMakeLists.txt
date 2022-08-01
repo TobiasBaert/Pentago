@@ -1,13 +1,14 @@
 target_sources(Pentago PRIVATE
+        BitBoardRepresentation.cpp
+        BitBoardRepresentation.h
+        EnumBoard.cpp
+        EnumBoard.h
         Game.cpp
         Game.h
         IBoard.cpp
         IBoard.h
-        EnumBoard.cpp
-        EnumBoard.h
-        BitBoardRepresentation.cpp
-        BitBoardRepresentation.cpp
-        RoundedRectangleShape.hpp)
+        RoundedRectangleShape.hpp
+        Utilities.h)
 
 target_include_directories(Pentago PRIVATE
         )
