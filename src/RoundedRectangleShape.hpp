@@ -13,7 +13,7 @@
 
 #include "compile_time/math.hpp"
 
-template<size_t pointsPerCorner = 6> class RoundedRectangleShape : public sf::Shape {
+template<size_t pointsPerCorner> class RoundedRectangleShape : public sf::Shape {
 public:
 
     RoundedRectangleShape(const sf::Vector2f& size, float radius);
@@ -32,7 +32,7 @@ private:
     sf::Vector2f mOuterCorners[4];  // corners of bounding box
     sf::Vector2f mInnerCorners[4];  // focus points of the corners
     sf::Vector2f mPoints[4][pointsPerCorner]; // points of each corner, from upper left corner and proceeding clockwise
-    float mRadius{};
+    float mRadius;
 
     void calculatePoints();
 };
@@ -63,32 +63,32 @@ sf::Vector2f RoundedRectangleShape<pointsPerCorner>::getPoint(std::size_t index)
     return mPoints[index / pointsPerCorner][index % pointsPerCorner];
 }
 
-template<>
-const sf::Vector2f& RoundedRectangleShape<>::getSize() const {
+template<size_t pointsPerCorner>
+const sf::Vector2f& RoundedRectangleShape<pointsPerCorner>::getSize() const {
     return mSize;
 }
 
-template<>
-void RoundedRectangleShape<>::setSize(const sf::Vector2f& size) {
+template<size_t pointsPerCorner>
+void RoundedRectangleShape<pointsPerCorner>::setSize(const sf::Vector2f& size) {
     mSize = size;
     calculatePoints();
     update();
 }
 
-template<>
-float RoundedRectangleShape<>::getRadius() const {
+template<size_t pointsPerCorner>
+float RoundedRectangleShape<pointsPerCorner>::getRadius() const {
     return mRadius;
 }
 
-template<>
-void RoundedRectangleShape<>::setRadius(float radius) {
+template<size_t pointsPerCorner>
+void RoundedRectangleShape<pointsPerCorner>::setRadius(float radius) {
     mRadius = radius;
     calculatePoints();
     update();
 }
 
 template<>
-void RoundedRectangleShape<1>::calculatePoints() {
+inline void RoundedRectangleShape<1>::calculatePoints() {
     for (int i = 0; i < 4; i++) mPoints[i][0] = mOuterCorners[i];
 }
 
