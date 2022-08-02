@@ -41,24 +41,17 @@ private:
     RoundedRectangleShape<10> mQuadrantShape {{QUADRANT_SIZE, QUADRANT_SIZE}, 0.1f * QUADRANT_SIZE};
     sf::CircleShape mCellShape {CIRCLE_RADIUS};
 
-    std::array<RoundedRectangleShape<5>, 4> mQuadrantShapes
-        = Util::create_array<4, RoundedRectangleShape<5>>(
-                {{QUADRANT_SIZE, QUADRANT_SIZE}, 0.1f * QUADRANT_SIZE});
-
-    std::array<sf::Transform, 4> mQuadrantTransforms {
-            sf::Transform().translate(SCREEN_CENTRE).translate({-QUADRANT_CENTRE_OFFSET, -QUADRANT_CENTRE_OFFSET}),
-            sf::Transform().translate(SCREEN_CENTRE).translate({QUADRANT_CENTRE_OFFSET, -QUADRANT_CENTRE_OFFSET}),
-            sf::Transform().translate(SCREEN_CENTRE).translate({-QUADRANT_CENTRE_OFFSET, QUADRANT_CENTRE_OFFSET}),
-            sf::Transform().translate(SCREEN_CENTRE).translate({QUADRANT_CENTRE_OFFSET, QUADRANT_CENTRE_OFFSET}),
+    const std::array<sf::Transform, 4> mQuadrantTransforms {
+        translation(SCREEN_CENTRE).translate({-QUADRANT_CENTRE_OFFSET, -QUADRANT_CENTRE_OFFSET}),
+        translation(SCREEN_CENTRE).translate({ QUADRANT_CENTRE_OFFSET, -QUADRANT_CENTRE_OFFSET}),
+        translation(SCREEN_CENTRE).translate({-QUADRANT_CENTRE_OFFSET,  QUADRANT_CENTRE_OFFSET}),
+        translation(SCREEN_CENTRE).translate({ QUADRANT_CENTRE_OFFSET,  QUADRANT_CENTRE_OFFSET}),
     };
 
-    std::array<std::array<sf::CircleShape, 6>, 6> mCircleShapes {{
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
+    const std::array<std::array<sf::Transform, 3>, 3> mCellTransforms {{
+        {translation({-CELL_SIZE,-CELL_SIZE}),   translation({0, -CELL_SIZE}),   translation({CELL_SIZE, -CELL_SIZE})},
+        {translation({-CELL_SIZE, 0}),           translation({0, 0}),            translation({CELL_SIZE, 0})},
+        {translation({-CELL_SIZE, CELL_SIZE}),   translation({0, CELL_SIZE}),    translation({CELL_SIZE, CELL_SIZE})}
     }};
 
     void configureQuadrantShapes();
@@ -71,6 +64,8 @@ private:
     void renderQuadrant(Quadrant q);
 
     sf::Color getSFColorAt(Quadrant q, int row, int col);
+
+    static sf::Transform translation(sf::Vector2f t);
 };
 
 
