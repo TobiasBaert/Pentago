@@ -7,32 +7,43 @@
 #include <iostream>
 #include <optional>
 
+std::ostream& operator<<(std::ostream& os, const sf::FloatRect& v) {
+    os << "Left: " << v.left << std::endl;
+    os << "Top: " << v.top << std::endl;
+    os << "Height: " << v.height << std::endl;
+    os << "Width: " << v.width << std::endl;
+    return os;
+}
+
 Game::Game() {
     configureQuadrantShapes();
     configureCellShapes();
     mWindow.setFramerateLimit(60);
+
+    std::cout << mQuadrantShapes[0].getGlobalBounds() << ' ' << mQuadrantShapes[0].getLocalBounds();
 }
 
 void Game::configureQuadrantShapes() {
     for (auto& qdShape : mQuadrantShapes) {
-        qdShape.setOrigin({QUADRANT_SIZE / 2, QUADRANT_SIZE / 2});
+        qdShape.setOrigin(QUADRANT_CENTRE);
         qdShape.setFillColor({200,0,0});
         qdShape.setOutlineColor(sf::Color::Black);
-        qdShape.setOutlineThickness(2.f);
+        qdShape.setOutlineThickness(-2.f);
     }
 }
 
 void Game::configureCellShapes() {
-    for (auto& row : mCircleShapes) {
-        for (auto& shape : row) {
-            shape.setOrigin({CIRCLE_RADIUS, CIRCLE_RADIUS});
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            auto& shape = mCircleShapes[i][j];
+            shape.setOrigin(CIRCLE_CENTRE);
+            shape.setPosition(CELL_SIZE * sf::Vector2f{(float) i - 1, (float) j - 1});
             shape.setFillColor(sf::Color{150,0,0});
             shape.setOutlineColor(sf::Color::Black);
-            shape.setOutlineThickness(2.f);
+            shape.setOutlineThickness(-2.f);
         }
     }
 }
-
 
 void Game::run() {
     while (mWindow.isOpen()) {
@@ -50,7 +61,8 @@ void Game::processEvents() {
             mWindow.close();
 
         if (event.type == sf::Event::MouseButtonPressed) {
-            std::cout << event.mouseButton.x << ' ' << event.mouseButton.y << std::endl;
+            std::cout << "A: " << event.mouseButton.x << ' ' << event.mouseButton.y << std::endl;
+
         }
     }
 }
@@ -60,39 +72,25 @@ void Game::render() {
     sf::Color turnColour = (pBoard->getTurn() == Colour::WHITE ? sf::Color::White : sf::Color::Black);
     mWindow.clear(turnColour);
 
-    static const sf::Vector2f screenCentreOffset {SCREEN_SIZE / 2.f, SCREEN_SIZE / 2.f};
-    renderAllQuadrants(sf::Transform().translate(screenCentreOffset));
+    renderQuadrant(Quadrant::NORTHWEST);
+    renderQuadrant(Quadrant::NORTHEAST);
+    renderQuadrant(Quadrant::SOUTHWEST);
+    renderQuadrant(Quadrant::SOUTHEAST);
 
     mWindow.display();
 }
 
-void Game::renderAllQuadrants(const sf::Transform t) {
-    static const float qdCentreOffset {QUADRANT_SIZE / 2 + INTRA_QUADRANT_MARGIN};
-    renderSingleQuadrant(Quadrant::NORTHWEST, sf::Transform(t).translate({-qdCentreOffset, -qdCentreOffset}));
-    renderSingleQuadrant(Quadrant::NORTHEAST, sf::Transform(t).translate({ qdCentreOffset, -qdCentreOffset}));
-    renderSingleQuadrant(Quadrant::SOUTHWEST, sf::Transform(t).translate({-qdCentreOffset,  qdCentreOffset}));
-    renderSingleQuadrant(Quadrant::SOUTHEAST, sf::Transform(t).translate({ qdCentreOffset,  qdCentreOffset}));
-}
-
-void Game::renderSingleQuadrant(const Quadrant q, const sf::Transform t) {
-    auto v = sf::Transform(t).rotate(0);
+void Game::renderQuadrant(const Quadrant q) {
+    auto v = sf::Transform(mQuadrantTransforms[to_underlying(q)]).rotate(0);
     mWindow.draw(mQuadrantShapes[to_underlying(q)], v);
-    renderAllCellsForQuadrant(q, v);
-}
 
-void Game::renderAllCellsForQuadrant(const Quadrant q, const sf::Transform t) {
     for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 3; col++) {
-            auto u = sf::Transform(t).translate(CELL_SIZE * sf::Vector2f{(float) col - 1, (float) row - 1});
-            renderSingleCellForQuadrant(q, row, col, u);
+            sf::CircleShape& s = mCircleShapes[row][col];
+            s.setFillColor(getSFColorAt(q, row, col));
+            mWindow.draw(s, v);
         }
     }
-}
-
-void Game::renderSingleCellForQuadrant(const Quadrant q, int row, int col, const sf::Transform t) {
-    sf::CircleShape& s = mCircleShapes[row][col];
-    s.setFillColor(getSFColorAt(q, row, col));
-    mWindow.draw(s, t);
 }
 
 sf::Color Game::getSFColorAt(Quadrant q, int row, int col) {
