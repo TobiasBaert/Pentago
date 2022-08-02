@@ -24,27 +24,34 @@ public:
 private:
     std::unique_ptr<IBoard> pBoard = std::unique_ptr<IBoard>(new EnumBoard());
 
-    static constexpr int SCREEN_SIZE = 1200;
-    static constexpr float CELL_SIZE = 150.f;
-    static constexpr float QUADRANT_SIZE = 3 * CELL_SIZE;
-    static constexpr float INTRA_QUADRANT_MARGIN = 15.f;
-    static constexpr float CIRCLE_RADIUS = 0.6f * CELL_SIZE / 2;
+    static constexpr int   SCREEN_SIZE              = 1200;
+    static constexpr float CELL_SIZE                = 150.f;
+    static constexpr float QUADRANT_SIZE            = 3 * CELL_SIZE;
+    static constexpr float INTER_QUADRANT_MARGIN    = 15.f;
+    static constexpr float CIRCLE_RADIUS            = 0.6f * CELL_SIZE / 2;
+    static constexpr float QUADRANT_CENTRE_OFFSET   = QUADRANT_SIZE / 2 + INTER_QUADRANT_MARGIN;
 
+    const sf::Vector2f SCREEN_CENTRE    {SCREEN_SIZE / 2.f  , SCREEN_SIZE / 2.f};
+    const sf::Vector2f QUADRANT_CENTRE  {QUADRANT_SIZE / 2.f, QUADRANT_SIZE / 2.f};
+    const sf::Vector2f CIRCLE_CENTRE    {CIRCLE_RADIUS      , CIRCLE_RADIUS};
 
     sf::RenderWindow mWindow{sf::VideoMode(SCREEN_SIZE, SCREEN_SIZE), "Pentago",
                              sf::Style::Close | sf::Style::Titlebar};
 
-    std::array<RoundedRectangleShape<5>, 4> mQuadrantShapes
-        = Util::create_array<4, RoundedRectangleShape<5>>(
-                {{QUADRANT_SIZE, QUADRANT_SIZE}, 0.1f * QUADRANT_SIZE});
+    RoundedRectangleShape<10> mQuadrantShape {{QUADRANT_SIZE, QUADRANT_SIZE}, 0.1f * QUADRANT_SIZE};
+    sf::CircleShape mCellShape {CIRCLE_RADIUS};
 
-    std::array<std::array<sf::CircleShape, 6>, 6> mCircleShapes {{
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
-        Util::create_array<6>(sf::CircleShape{CIRCLE_RADIUS}),
+    const std::array<sf::Transform, 4> mQuadrantTransforms {
+        translation(SCREEN_CENTRE).translate({-QUADRANT_CENTRE_OFFSET, -QUADRANT_CENTRE_OFFSET}),
+        translation(SCREEN_CENTRE).translate({ QUADRANT_CENTRE_OFFSET, -QUADRANT_CENTRE_OFFSET}),
+        translation(SCREEN_CENTRE).translate({-QUADRANT_CENTRE_OFFSET,  QUADRANT_CENTRE_OFFSET}),
+        translation(SCREEN_CENTRE).translate({ QUADRANT_CENTRE_OFFSET,  QUADRANT_CENTRE_OFFSET}),
+    };
+
+    const std::array<std::array<sf::Transform, 3>, 3> mCellTransforms {{
+        {translation({-CELL_SIZE,-CELL_SIZE}),   translation({0, -CELL_SIZE}),   translation({CELL_SIZE, -CELL_SIZE})},
+        {translation({-CELL_SIZE, 0}),           translation({0, 0}),            translation({CELL_SIZE, 0})},
+        {translation({-CELL_SIZE, CELL_SIZE}),   translation({0, CELL_SIZE}),    translation({CELL_SIZE, CELL_SIZE})}
     }};
 
     void configureQuadrantShapes();
@@ -53,12 +60,12 @@ private:
     void processEvents();
 
     void render();
-    void renderAllQuadrants(sf::Transform t);
-    void renderSingleQuadrant(Quadrant q, sf::Transform t);
-    void renderAllCellsForQuadrant(Quadrant q, sf::Transform t);
-    void renderSingleCellForQuadrant(Quadrant q, int row, int col, sf::Transform t);
+
+    void renderQuadrant(Quadrant q);
 
     sf::Color getSFColorAt(Quadrant q, int row, int col);
+
+    static sf::Transform translation(sf::Vector2f t);
 };
 
 
