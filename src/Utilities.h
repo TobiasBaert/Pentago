@@ -7,8 +7,18 @@
 
 #include <array>
 #include <cstddef>
+#include <cmath>
 
 namespace Util {
+
+    inline double squaredDistance(sf::Vector2f first, sf::Vector2f second) {
+        return std::pow(first.x - second.x, 2) + std::pow(first.y - second.y, 2);
+    }
+
+    inline bool distanceLessThan(sf::Vector2f first, sf::Vector2f second, float maxDistance) {
+        return squaredDistance(first, second) <= std::pow(maxDistance, 2);
+    }
+
     /*
      * Necessary to fill std::array for types without a default constructor.
      * Source: https://stackoverflow.com/questions/57756557/initializing-a-stdarray-with-a-constant-value

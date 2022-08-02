@@ -59,8 +59,12 @@ private:
 
     void processEvents();
 
-    void render();
+    using OptionalQuadrant = std::optional<Quadrant>;
+    using OptionalIntPair = std::optional<std::pair<int,int>>;
+    OptionalQuadrant quadrantFromPosition(sf::Vector2f position);
+    OptionalIntPair cellCoordsFromPosition(sf::Vector2f position);
 
+    void render();
     void renderQuadrant(Quadrant q);
 
     sf::Color getSFColorAt(Quadrant q, int row, int col);

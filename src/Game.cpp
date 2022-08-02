@@ -52,8 +52,14 @@ void Game::processEvents() {
             mWindow.close();
 
         if (event.type == sf::Event::MouseButtonPressed) {
-            std::cout << "A: " << event.mouseButton.x << ' ' << event.mouseButton.y << std::endl;
-
+            auto x = static_cast<float>(event.mouseButton.x);
+            auto y = static_cast<float>(event.mouseButton.y);
+            auto q = quadrantFromPosition({x,y});
+            auto c = cellCoordsFromPosition({x,y});
+            std::cout << "A: " << x << ' ' << y << std::endl;
+            std::cout << "Q: " << (q ? std::to_string(to_underlying(*q)) : "Nope") << std::endl;
+            std::cout << "C1: " << (c ? std::to_string(c->first) : "Nope") << std::endl;
+            std::cout << "C2: " << (c ? std::to_string(c->second) : "Nope") << std::endl;
         }
     }
 }
@@ -91,4 +97,33 @@ sf::Color Game::getSFColorAt(Quadrant q, int row, int col) {
 
 sf::Transform Game::translation(sf::Vector2f t) {
     return sf::Transform().translate(t);
+}
+
+Game::OptionalQuadrant Game::quadrantFromPosition(sf::Vector2f position) {
+    static constexpr std::array<Quadrant, 4> qds {
+        Quadrant::NORTHWEST, Quadrant::NORTHEAST,
+        Quadrant::SOUTHWEST, Quadrant::SOUTHEAST
+    };
+
+    for (int i = 0; i < 4; i++) {
+        auto p = mQuadrantTransforms[i].getInverse().transformPoint(position);
+        if (mQuadrantShape.withinGlobalBounds(p)) return qds[i];
+    }
+
+    return {std::nullopt};
+}
+
+Game::OptionalIntPair Game::cellCoordsFromPosition(sf::Vector2f position) {
+    auto e = quadrantFromPosition(position);
+    if (!e) return {std::nullopt};
+
+    const auto quadrantTransform = mQuadrantTransforms[to_underlying(*e)];
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            auto p = (quadrantTransform * mCellTransforms[i][j]).getInverse().transformPoint(position);
+            if (Util::distanceLessThan(p, {0.f, 0.f}, CIRCLE_RADIUS)) return std::pair(i,j);
+        }
+    }
+    return {std::nullopt};
 }
