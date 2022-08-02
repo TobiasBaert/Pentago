@@ -18,7 +18,7 @@ public:
 
     RoundedRectangleShape(const sf::Vector2f& size, float radius);
 
-    const sf::Vector2f& getSize() const;
+    sf::Vector2f getSize() const;
     void setSize(const sf::Vector2f& mSize);
 
     float getRadius() const;
@@ -27,51 +27,37 @@ public:
     size_t getPointCount() const override;
     sf::Vector2f getPoint(std::size_t index) const override;
 
+    bool withinLocalBounds(sf::Vector2f localPos);
+
 private:
-    sf::Vector2f mSize;             // dimensions of bounding box
-    sf::Vector2f mOuterCorners[4];  // corners of bounding box
+    float mRadius;
+    sf::FloatRect mOuterRect;
+
+    sf::FloatRect mInnerRect;
     sf::Vector2f mInnerCorners[4];  // focus points of the corners
     sf::Vector2f mPoints[4][pointsPerCorner]; // points of each corner, from upper left corner and proceeding clockwise
-    float mRadius;
 
-    void calculatePoints();
+    void updateInternals();
 };
 
 template<size_t pointsPerCorner>
 RoundedRectangleShape<pointsPerCorner>::RoundedRectangleShape(const sf::Vector2f& size, float radius)
-        : mSize(size)
-        , mOuterCorners{ sf::Vector2f{0,0},
-                         sf::Vector2f{mSize.x, 0},
-                         sf::Vector2f{mSize.x, mSize.y},
-                         sf::Vector2f{0, mSize.y}}
-        , mInnerCorners{mOuterCorners[0] + sf::Vector2f{ radius,  radius},
-                        mOuterCorners[1] + sf::Vector2f{-radius,  radius},
-                        mOuterCorners[2] + sf::Vector2f{-radius, -radius},
-                        mOuterCorners[3] + sf::Vector2f{ radius, -radius}}
-        , mRadius(radius) {
-    calculatePoints();
+        : mRadius(radius)
+        , mOuterRect(0, 0, size.x, size.y) {
+    updateInternals();
     update();
 }
 
 template<size_t pointsPerCorner>
-size_t RoundedRectangleShape<pointsPerCorner>::getPointCount() const {
-    return 4 * pointsPerCorner;
-}
-
-template<size_t pointsPerCorner>
-sf::Vector2f RoundedRectangleShape<pointsPerCorner>::getPoint(std::size_t index) const {
-    return mPoints[index / pointsPerCorner][index % pointsPerCorner];
-}
-
-template<size_t pointsPerCorner>
-const sf::Vector2f& RoundedRectangleShape<pointsPerCorner>::getSize() const {
-    return mSize;
+sf::Vector2f RoundedRectangleShape<pointsPerCorner>::getSize() const {
+    return {mOuterRect.width, mOuterRect.height};
 }
 
 template<size_t pointsPerCorner>
 void RoundedRectangleShape<pointsPerCorner>::setSize(const sf::Vector2f& size) {
-    mSize = size;
-    calculatePoints();
+    mOuterRect.width = size.x;
+    mOuterRect.height = size.y;
+    updateInternals();
     update();
 }
 
@@ -83,13 +69,18 @@ float RoundedRectangleShape<pointsPerCorner>::getRadius() const {
 template<size_t pointsPerCorner>
 void RoundedRectangleShape<pointsPerCorner>::setRadius(float radius) {
     mRadius = radius;
-    calculatePoints();
+    updateInternals();
     update();
 }
 
-template<>
-inline void RoundedRectangleShape<1>::calculatePoints() {
-    for (int i = 0; i < 4; i++) mPoints[i][0] = mOuterCorners[i];
+template<size_t pointsPerCorner>
+size_t RoundedRectangleShape<pointsPerCorner>::getPointCount() const {
+    return 4 * pointsPerCorner;
+}
+
+template<size_t pointsPerCorner>
+sf::Vector2f RoundedRectangleShape<pointsPerCorner>::getPoint(std::size_t index) const {
+    return mPoints[index / pointsPerCorner][index % pointsPerCorner];
 }
 
 template<size_t pointsPerCorner>
@@ -119,7 +110,34 @@ constexpr auto initSines(const std::array<float, pointsPerCorner>& thetas) {
 }
 
 template<size_t pointsPerCorner>
-void RoundedRectangleShape<pointsPerCorner>::calculatePoints() {
+bool RoundedRectangleShape<pointsPerCorner>::withinLocalBounds(sf::Vector2f localPos) {
+    if (!mOuterRect.contains(localPos)) return false;
+    if (mInnerRect.contains(localPos)) return true;
+
+    // produce a new position by clamping localPos to the inner rectangle
+    float clampedX = std::min(std::max(localPos.x, mInnerCorners[0].x), mInnerCorners[2].x);
+    float clampedY = std::min(std::max(localPos.y, mInnerCorners[0].y), mInnerCorners[2].y);
+
+    // calculate distance from clamped point to localPos
+    double squaredDistance = std::pow(clampedX - localPos.x, 2) + std::pow(clampedY - localPos.y, 2);
+    return squaredDistance <= std::pow(mRadius, 2);
+}
+
+template<size_t pointsPerCorner>
+void RoundedRectangleShape<pointsPerCorner>::updateInternals() {
+    // set inner rectangle
+    mInnerRect.left     = mRadius;
+    mInnerRect.top      = mRadius;
+    mInnerRect.width    = mOuterRect.width - 2 * mRadius;
+    mInnerRect.height   = mOuterRect.height - 2 * mRadius;
+
+    // set inner points
+    mInnerCorners[0] = {mInnerRect.left                     , mInnerRect.top};
+    mInnerCorners[1] = {mInnerRect.left + mInnerRect.width  , mInnerRect.top};
+    mInnerCorners[2] = {mInnerRect.left + mInnerRect.width  , mInnerRect.top + mInnerRect.height};
+    mInnerCorners[3] = {mInnerRect.left                     , mInnerRect.top + mInnerRect.height};
+
+    // calculate outline points
     // the points of each corner are obtained by sampling a quarter-circle at pointsPerCorner equidistant points.
     // interval indicates the difference in angle between subsequent samples.
     static constexpr std::array<float, pointsPerCorner> thetas = initThetas<pointsPerCorner>();
