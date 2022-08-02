@@ -27,6 +27,7 @@ public:
     size_t getPointCount() const override;
     sf::Vector2f getPoint(std::size_t index) const override;
 
+    bool withinGlobalBounds(sf::Vector2f globalPos);
     bool withinLocalBounds(sf::Vector2f localPos);
 
 private:
@@ -110,6 +111,11 @@ constexpr auto initSines(const std::array<float, pointsPerCorner>& thetas) {
 }
 
 template<size_t pointsPerCorner>
+bool RoundedRectangleShape<pointsPerCorner>::withinGlobalBounds(sf::Vector2f globalPos) {
+    return withinLocalBounds(globalPos + getOrigin());
+}
+
+template<size_t pointsPerCorner>
 bool RoundedRectangleShape<pointsPerCorner>::withinLocalBounds(sf::Vector2f localPos) {
     if (!mOuterRect.contains(localPos)) return false;
     if (mInnerRect.contains(localPos)) return true;
@@ -156,6 +162,7 @@ void RoundedRectangleShape<pointsPerCorner>::updateInternals() {
     }
 
 }
+
 
 
 #endif //PENTAGO_ROUNDEDRECTANGLE_H_DATE_27_07_2022_TIME_21_33
