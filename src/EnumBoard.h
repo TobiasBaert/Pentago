@@ -24,7 +24,9 @@ public:
 
     [[nodiscard]] OptionalColour getColourAt(Quadrant q, int x, int y) const override;
 
-    void placeAt(Colour col, int x, int y) override;
+    void placeAt(Quadrant q, int x, int y) override;
+
+    void placeAt(int x, int y) override;
 
     void rotate(Quadrant q, RotationDir d) override;
 

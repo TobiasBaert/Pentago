@@ -46,7 +46,8 @@ public:
     [[nodiscard]] virtual OptionalColour getColourAt(Quadrant q, int x, int y) const;
     [[nodiscard]] virtual OptionalColour getColourAt(int x, int y) const = 0;
 
-    virtual void placeAt(Colour colour, int row, int col) = 0;
+    virtual void placeAt(Quadrant q, int x, int y );
+    virtual void placeAt(int x, int y) = 0;
     virtual void rotate(Quadrant q, RotationDir d) = 0;
     virtual void advanceTurn() = 0;
 

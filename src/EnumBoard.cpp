@@ -53,10 +53,15 @@ IBoard::OptionalColour EnumBoard::getColourAt(Quadrant q, int x, int y) const {
     return mQuadrants[to_underlying(q)][x][y];
 }
 
-void EnumBoard::placeAt(Colour col, int x, int y) {
+void EnumBoard::placeAt(int x, int y) {
     assert(isValidGlobalCoord(x, y));
-    mGrid[x][y] = col;
+    mGrid[x][y] = mTurn;
     syncQuadrantsFromGrid();
+}
+
+void EnumBoard::placeAt(Quadrant q, int x, int y) {
+    mQuadrants[to_underlying(q)][x][y] = mTurn;
+    syncGridFromQuadrants();
 }
 
 void EnumBoard::rotate(Quadrant q, RotationDir d) {

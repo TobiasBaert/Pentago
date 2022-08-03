@@ -29,8 +29,8 @@ IBoard::OptionalColour BitBoardRepresentation::getColourAt(int x, int y) const {
     return {std::nullopt};
 }
 
-void BitBoardRepresentation::placeAt(Colour col, int x, int y) {
-    mColours[to_underlying(col)].set(getIndexFrom(x, y));
+void BitBoardRepresentation::placeAt(int x, int y) {
+    mColours[to_underlying(mTurn)].set(getIndexFrom(x, y));
 
     syncDerivedFields();
 }
