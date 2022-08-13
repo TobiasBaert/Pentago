@@ -15,11 +15,18 @@
 #include "Utilities.h"
 
 class Game {
+protected:
+    using OptionalQuadrant = std::optional<Quadrant>;
+    using OptionalIntPair = std::optional<std::pair<int,int>>;
+    using CoordinateTuple = std::tuple<OptionalQuadrant, OptionalIntPair>;
+
 public:
 
     Game();
 
     void run();
+
+    CoordinateTuple getCoordinateTupleFromPosition(sf::Vector2f p) const;
 
 private:
     std::unique_ptr<IBoard> pBoard = std::unique_ptr<IBoard>(new EnumBoard());
@@ -59,10 +66,8 @@ private:
 
     void processEvents();
 
-    using OptionalQuadrant = std::optional<Quadrant>;
-    using OptionalIntPair = std::optional<std::pair<int,int>>;
-    OptionalQuadrant quadrantFromPosition(sf::Vector2f position);
-    OptionalIntPair cellCoordsFromPosition(sf::Vector2f position);
+    OptionalQuadrant getQuadrantFromPosition(sf::Vector2f p, sf::Vector2f& pInQuadrantLocalCoordSystem /*OUT*/) const;
+    OptionalIntPair getCellCoordsFromPosition(sf::Vector2f pInQuadrantLocalCoordSystem) const;
 
     void render();
     void renderQuadrant(Quadrant q);

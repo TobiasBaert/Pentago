@@ -19,7 +19,6 @@ Game::Game() {
     configureQuadrantShapes();
     configureCellShapes();
     mWindow.setFramerateLimit(60);
-    pBoard->placeAt(Colour::WHITE, 2, 3);
 }
 
 void Game::configureQuadrantShapes() {
@@ -54,8 +53,7 @@ void Game::processEvents() {
         if (event.type == sf::Event::MouseButtonPressed) {
             auto x = static_cast<float>(event.mouseButton.x);
             auto y = static_cast<float>(event.mouseButton.y);
-            auto q = quadrantFromPosition({x,y});
-            auto c = cellCoordsFromPosition({x,y});
+            auto [q, c] = getCoordinateTupleFromPosition({x,y});
             std::cout << "A: " << x << ' ' << y << std::endl;
             std::cout << "Q: " << (q ? std::to_string(to_underlying(*q)) : "Nope") << std::endl;
             std::cout << "C1: " << (c ? std::to_string(c->first) : "Nope") << std::endl;
@@ -99,31 +97,43 @@ sf::Transform Game::translation(sf::Vector2f t) {
     return sf::Transform().translate(t);
 }
 
-Game::OptionalQuadrant Game::quadrantFromPosition(sf::Vector2f position) {
-    static constexpr std::array<Quadrant, 4> qds {
-        Quadrant::NORTHWEST, Quadrant::NORTHEAST,
-        Quadrant::SOUTHWEST, Quadrant::SOUTHEAST
-    };
-
+Game::OptionalQuadrant Game::getQuadrantFromPosition(sf::Vector2f p, sf::Vector2f& pInQuadrantLocalCoordSystem) const {
+    // determine the quadrant by:
+    // 1) applying the reverse transformation to the centre of the quadrant to the given position. This yields the
+    // given position relative to the centre of the quadrant.
+    // 2) checking if the transformed position is within the global bounds of the quadrant.
     for (int i = 0; i < 4; i++) {
-        auto p = mQuadrantTransforms[i].getInverse().transformPoint(position);
-        if (mQuadrantShape.withinGlobalBounds(p)) return qds[i];
+        pInQuadrantLocalCoordSystem = mQuadrantTransforms[i].getInverse().transformPoint(p);
+        if (mQuadrantShape.withinGlobalBounds(pInQuadrantLocalCoordSystem)) return Quadrant(i);
     }
 
     return {std::nullopt};
 }
 
-Game::OptionalIntPair Game::cellCoordsFromPosition(sf::Vector2f position) {
-    auto e = quadrantFromPosition(position);
-    if (!e) return {std::nullopt};
-
-    const auto quadrantTransform = mQuadrantTransforms[to_underlying(*e)];
-
+Game::OptionalIntPair Game::getCellCoordsFromPosition(sf::Vector2f pInQuadrantLocalCoordSystem) const {
+    // determine the cell indices by:
+    // 1) transforming the given position, which should be relative to the centre of the quadrant, by applying the
+    // inverse transformation from the centre of the quadrant to the centre of a cell. This yields the given position
+    // relative to the centre of the cell.
+    // 2) checking if the distance between the transformed position and the origin, i.e., centre of the circle shape,
+    // is less than the radius of said circle shape.
+    sf::Vector2f pInCellLocalCoordSystem;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            auto p = (quadrantTransform * mCellTransforms[i][j]).getInverse().transformPoint(position);
-            if (Util::distanceLessThan(p, {0.f, 0.f}, CIRCLE_RADIUS)) return std::pair(i,j);
+            pInCellLocalCoordSystem = mCellTransforms[i][j].getInverse().transformPoint(pInQuadrantLocalCoordSystem);
+            if (Util::distanceLessThan(pInCellLocalCoordSystem, {0.f, 0.f}, CIRCLE_RADIUS)) return {{i, j}};
         }
     }
     return {std::nullopt};
+}
+
+Game::CoordinateTuple Game::getCoordinateTupleFromPosition(sf::Vector2f p) const {
+    OptionalQuadrant q;
+    OptionalIntPair coords;
+
+    sf::Vector2f pInQuadrantLocalCoordSystem;
+    q = getQuadrantFromPosition(p, pInQuadrantLocalCoordSystem);
+    if (q) coords = getCellCoordsFromPosition(pInQuadrantLocalCoordSystem);
+
+    return CoordinateTuple{q, coords};
 }
