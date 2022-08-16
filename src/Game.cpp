@@ -21,6 +21,11 @@ Game::Game() {
     mWindow.setFramerateLimit(60);
 }
 
+void Game::setQuadrantToRenderLast(Quadrant q) {
+    auto p = std::find(mQuadrantRenderOrder.begin(), mQuadrantRenderOrder.end(),q); // find
+    std::swap(*p, mQuadrantRenderOrder[3]); // swap
+}
+
 void Game::configureQuadrantShapes() {
     mQuadrantShape.setOrigin(QUADRANT_CENTRE);
     mQuadrantShape.setFillColor({200,0,0});
@@ -67,10 +72,9 @@ void Game::render() {
     sf::Color turnColour = (pBoard->getTurn() == Colour::WHITE ? sf::Color::White : sf::Color::Black);
     mWindow.clear(turnColour);
 
-    renderQuadrant(Quadrant::NORTHWEST);
-    renderQuadrant(Quadrant::NORTHEAST);
-    renderQuadrant(Quadrant::SOUTHWEST);
-    renderQuadrant(Quadrant::SOUTHEAST);
+    for (auto q : mQuadrantRenderOrder) {
+        renderQuadrant(q);
+    }
 
     mWindow.display();
 }
