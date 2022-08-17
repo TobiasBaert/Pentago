@@ -74,7 +74,6 @@ public:
     /**
      * Checks if a given position lies within the shape, taking into account the transforms applied to the shape.
      *
-     * FIXME currently only takes into account the position of the origin. Should rely on the stored transform instead.
      * @param globalPos the position
      * @return true iff applying the inverse transformation to the given position results in a position within the
      * local bounds of the shape.
