@@ -28,7 +28,7 @@ inline Colour operator!(Colour c) {
 /**
  * The two directions to rotate quadrants in.
  */
-enum class RotationDir : int { // FIXME to size_t
+enum class RotationDir : size_t {
     CLOCKWISE = 0,
     COUNTERCLOCKWISE
 };
@@ -36,7 +36,7 @@ enum class RotationDir : int { // FIXME to size_t
 /**
  * The four names for the four 3x3 quadrants.
  */
-enum class Quadrant : int { // FIXME to size_t
+enum class Quadrant : size_t {
     NORTHWEST = 0,
     NORTHEAST,
     SOUTHWEST,

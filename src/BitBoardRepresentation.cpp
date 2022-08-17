@@ -96,7 +96,7 @@ void BitBoardRepresentation::reflectQuadrantHorizontally(Quadrant q) {
             BitBoard(0000000000007), BitBoard(0000000000070)
     };
 
-    const int index = to_underlying(q);
+    const size_t index = to_underlying(q);
 
     deltaSwapInPlace(mWhite, swap1Masks[index], 12); // flip with top row of quadrant
     deltaSwapInPlace(mBlack, swap1Masks[index], 12);
@@ -113,7 +113,7 @@ void BitBoardRepresentation::reflectQuadrantDiagonally(Quadrant q) {
             BitBoard(0000000000001), BitBoard(0000000000010)
     };
 
-    const int index = to_underlying(q);
+    const size_t index = to_underlying(q);
 
     deltaSwapInPlace(mWhite, swap2Masks[index],  7); // swap first sub- and super diagonals
     deltaSwapInPlace(mWhite, swap3Masks[index], 14); // swap bottom left and upper right corners
