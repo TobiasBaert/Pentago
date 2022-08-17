@@ -165,35 +165,35 @@ sf::Vector2f RoundedRectangleShape<pointsPerCorner>::getPoint(std::size_t index)
  * initSines() maps the series to their sines to get a series that goes from 0 to 1, along the sampled points.
  *
  * Every corner can reuse these same results, although their interpretation and the applied sign might change.
- *
- * FIXME extract from global namespace
  */
+namespace {
 
+    template<size_t pointsPerCorner>
+    constexpr auto initThetas() {
+        constexpr float interval = M_PI_2 / ((float) pointsPerCorner - 1);
+        return [] {
+            std::array<float, pointsPerCorner> tmp{};
+            for (size_t i = 0; i < pointsPerCorner; i++) tmp[i] = interval * (float) i;
+            return tmp;
+        }();
+    }
 
-template<size_t pointsPerCorner>
-constexpr auto initThetas() {
-    constexpr float interval = M_PI_2 / ((float) pointsPerCorner - 1);
-    return [] {
+    template<size_t pointsPerCorner>
+    constexpr auto initCosines(const std::array<float, pointsPerCorner>& thetas) {
         std::array<float, pointsPerCorner> tmp{};
-        for (size_t i = 0; i < pointsPerCorner; i++) tmp[i] = interval * (float) i;
+        auto cosMap = [] (auto e) {return compile_time::cos(e);};
+        std::transform(thetas.cbegin(), thetas.cend(), tmp.begin(), cosMap);
         return tmp;
-    }();
-}
+    }
 
-template<size_t pointsPerCorner>
-constexpr auto initCosines(const std::array<float, pointsPerCorner>& thetas) {
-    std::array<float, pointsPerCorner> tmp{};
-    auto cosMap = [] (auto e) {return compile_time::cos(e);};
-    std::transform(thetas.cbegin(), thetas.cend(), tmp.begin(), cosMap);
-    return tmp;
-}
+    template<size_t pointsPerCorner>
+    constexpr auto initSines(const std::array<float, pointsPerCorner>& thetas) {
+        std::array<float, pointsPerCorner> tmp{};
+        auto sinMap = [] (auto e) {return compile_time::sin(e);};
+        std::transform(thetas.cbegin(), thetas.cend(), tmp.begin(), sinMap);
+        return tmp;
+    }
 
-template<size_t pointsPerCorner>
-constexpr auto initSines(const std::array<float, pointsPerCorner>& thetas) {
-    std::array<float, pointsPerCorner> tmp{};
-    auto sinMap = [] (auto e) {return compile_time::sin(e);};
-    std::transform(thetas.cbegin(), thetas.cend(), tmp.begin(), sinMap);
-    return tmp;
 }
 
 template<size_t pointsPerCorner>
