@@ -199,8 +199,7 @@ constexpr auto initSines(const std::array<float, pointsPerCorner>& thetas) {
 
 template<size_t pointsPerCorner>
 bool RoundedRectangleShape<pointsPerCorner>::withinGlobalBounds(sf::Vector2f globalPos) const {
-    // sf::Vector2f posInLocalCoords = getInverseTransform().transformPoint(globalPos); // untested
-    return withinLocalBounds(globalPos + getOrigin());
+    return withinLocalBounds(getInverseTransform().transformPoint(globalPos));
 }
 
 template<size_t pointsPerCorner>
