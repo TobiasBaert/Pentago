@@ -125,7 +125,7 @@ Game::OptionalIntPair Game::getCellCoordsFromPosition(sf::Vector2f pInQuadrantLo
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             pInCellLocalCoordSystem = mCellTransforms[i][j].getInverse().transformPoint(pInQuadrantLocalCoordSystem);
-            if (Util::distanceLessThan(pInCellLocalCoordSystem, {0.f, 0.f}, CIRCLE_RADIUS)) return {{i, j}};
+            if (Util::distanceLessOrEqualTo(pInCellLocalCoordSystem, {0.f, 0.f}, CIRCLE_RADIUS)) return {{i, j}};
         }
     }
     return {std::nullopt};

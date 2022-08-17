@@ -11,11 +11,24 @@
 
 namespace Util {
 
+    /**
+     * Calculates the square of the distance between two points.
+     * @param first first point
+     * @param second second point
+     * @return returns the square of the euclidean distance between the first and second point
+     */
     inline double squaredDistance(sf::Vector2f first, sf::Vector2f second) {
         return std::pow(first.x - second.x, 2) + std::pow(first.y - second.y, 2);
     }
 
-    inline bool distanceLessThan(sf::Vector2f first, sf::Vector2f second, float maxDistance) {
+    /**
+     * Checks if the distance between two points is less than or equal to a given amount.
+     * @param first first point
+     * @param second second point
+     * @param maxDistance maximum distance
+     * @return true iff the distance between the two points <= the maximum distance
+     */
+    inline bool distanceLessOrEqualTo(sf::Vector2f first, sf::Vector2f second, float maxDistance) {
         return squaredDistance(first, second) <= std::pow(maxDistance, 2);
     }
 
@@ -26,10 +39,16 @@ namespace Util {
     template <typename T, std::size_t ... Is>
     constexpr std::array<T, sizeof...(Is)>
     create_array(T value, std::index_sequence<Is...>) {
-        // cast Is to void to remove the warning: unused value
-        return {{(static_cast<void>(Is), value)...}};
+        return {{(Is, value)...}};
     }
 
+    /**
+     * Shorthand for compile-time, uniform initialisation of an array.
+     * @tparam N the length of the array
+     * @tparam T the type of values in the array
+     * @param value the value with which to fill the entire array
+     * @return returns an array of length N, filled entirely with the given value
+     */
     template <std::size_t N, typename T>
     constexpr std::array<T, N> create_array(const T& value) {
         return Util::create_array(value, std::make_index_sequence<N>());
