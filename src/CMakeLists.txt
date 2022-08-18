@@ -8,7 +8,12 @@ target_sources(Pentago PRIVATE
         IBoard.cpp
         IBoard.h
         RoundedRectangleShape.hpp
-        Utilities.h)
+        Utilities.h
+        IState.h
+        PlacementState.cpp
+        PlacementState.h
+        RotationState.cpp
+        RotationState.h)
 
 target_include_directories(Pentago PRIVATE
         )

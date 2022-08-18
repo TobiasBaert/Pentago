@@ -186,11 +186,11 @@ void EnumBoard::checkSeries(const IntPairVector& origins, const OffsetArray& off
     }
 }
 
-void EnumBoard::reverseRows(QuadrantGrid q) {
+void EnumBoard::reverseRows(QuadrantGrid& q) {
     std::swap(q[0], q[2]);
 }
 
-void EnumBoard::transpose(QuadrantGrid q) {
+void EnumBoard::transpose(QuadrantGrid& q) {
     std::swap(q[0][1], q[1][0]);
     std::swap(q[1][2], q[2][1]);
     std::swap(q[0][2], q[2][0]);

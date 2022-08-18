@@ -9,12 +9,18 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 
-#include "IBoard.h"
 #include "EnumBoard.h"
+#include "IBoard.h"
+#include "IState.h"
+#include "PlacementState.h"
+#include "RotationState.h"
 #include "RoundedRectangleShape.hpp"
 #include "Utilities.h"
 
 class Game {
+    friend class PlacementState;
+    friend class RotationState;
+
 protected:
     using OptionalQuadrant = std::optional<Quadrant>;
     using OptionalIntPair = std::optional<std::pair<int,int>>;
@@ -34,24 +40,24 @@ public:
      */
     void run();
 
-    /**
-     * Checks whether a given position in the window's coordinate system is located within any of the quadrants and
-     * if so, if it is located within any of that quadrant's cells.
-     * @param p the position in the window coordinate system
-     * @return A pair of optionals. If the position is within a quadrant, then the first value is that quadrant,
-     * otherwise it is empty. If the position is additionally within a cell within that quadrant, then the second
-     * value is also a pair that represents the row and column (in range [0,2]) within the quadrant. Otherwise the
-     * second value is empty. If the first value is empty, the second value will always be empty too.
-     */
-    CoordinateTuple getCoordinateTupleFromPosition(sf::Vector2f p) const;
-
 private:
     /**
      * The link to the board representation.
      */
-    std::unique_ptr<IBoard> pBoard = std::unique_ptr<IBoard>(new EnumBoard());
+    std::unique_ptr<IBoard> pBoard{new EnumBoard()};
 
-    /// All kinds of layout related constants. TODO move to config file/namespace
+    /**
+     * Two states that interpret input in their own way.
+     *
+     * One for placement: it checks if clicks fall inside cells and reacts accordingly.
+     * One for rotation: it listens for dragging of the mouse.
+     */
+    std::array<std::unique_ptr<IState>, 2> mSavedStates = {
+            std::make_unique<PlacementState>(*this),
+            std::make_unique<RotationState>(*this)
+    };
+
+    /// All kinds of layout related constants.
     static constexpr int   SCREEN_SIZE              = 1200;
     static constexpr float CELL_SIZE                = 150.f;
     static constexpr float QUADRANT_SIZE            = 3 * CELL_SIZE;
@@ -128,24 +134,6 @@ private:
     void processEvents();
 
     /**
-     * Checks whether a given position in the window's coordinate system is located within any of the quadrants.
-     * @param p the position in the window coordinate system
-     * @param pInQuadrantLocalCoordSystem OUT argument, if the given position is within a quadrant Q, then this
-     * position is set to the given position expressed in the coordinate system of Q. Otherwise, left unchanged.
-     * @return if the given position is within a quadrant, then returns the quadrant. Otherwise, returns an empty
-     * optional.
-     */
-    OptionalQuadrant getQuadrantFromPosition(sf::Vector2f p, sf::Vector2f& pInQuadrantLocalCoordSystem /*OUT*/) const;
-
-    /**
-     * Checks whether a given position in a quadrant's coordinate system is located within any of the cells.
-     * @param pInQuadrantLocalCoordSystem the position in the quadrant's coordinate system.
-     * @return if the given position is within the circle of a cell, then returns a pair of coordinates expressing the
-     * row and col (in range [0,2]) of that cell. Otherwise, returns an empty optional.
-     */
-    OptionalIntPair getCellCoordsFromPosition(sf::Vector2f pInQuadrantLocalCoordSystem) const;
-
-    /**
      * Draws all the quadrant and their cells.
      */
     void render();
@@ -165,15 +153,11 @@ private:
     void renderQuadrant(Quadrant q);
 
     /**
-     * Get the fill colour (in terms of the graphical framework) for the cell at a given row and column WITHIN the
-     * given quadrant.
-     * @param q the quadrant
-     * @param row the row within the quadrant, in range [0,2]
-     * @param col the column within the quadrant, in range [0,2]
-     * @return if there is a marble in the cell at the given row and column within the quadrant, returns the SFML's
-     * white or black as appropriate, otherwise return a darker version of the quadrant's red.
+     * Translates a board representation colour to a graphical framework colour.
+     * @param c the colour to translate
+     * @return returns, respectively, sf::White or sf::Black if c is, respectively, WHITE or BLACK
      */
-    sf::Color getSFColorAt(Quadrant q, int row, int col);
+    static sf::Color toSFColor(Colour c);
 
     /**
      * Shorthand for creating translations.
@@ -183,6 +167,35 @@ private:
      * @return returns an empty transform, translated by t.
      */
     static sf::Transform translation(sf::Vector2f t);
+
+    /**
+     * Checks whether a given position in the window's coordinate system is located within any of the quadrants.
+     * @param p the position in the window coordinate system
+     * @param pInQuadrantLocalCoordSystem OUT argument, if the given position is within a quadrant Q, then this
+     * position is set to the given position expressed in the coordinate system of Q. Otherwise, left unchanged.
+     * @return if the given position is within a quadrant, then returns the quadrant. Otherwise, returns an empty
+     * optional.
+     */
+    OptionalQuadrant getQuadrantFromPosition(sf::Vector2f p, sf::Vector2f& pInQuadrantLocalCoordSystem /*OUT*/) const;
+
+    /**
+     * Checks whether a given position in a quadrant's coordinate system is located within any of the cells.
+     * @param pInQuadrantLocalCoordSystem the position in the quadrant's coordinate system.
+     * @return if the given position is within the circle of a cell, then returns a pair of coordinates expressing the
+     * row and col (in range [0,2]) of that cell. Otherwise, returns an empty optional.
+     */
+    OptionalIntPair getCellCoordsFromPosition(sf::Vector2f pInQuadrantLocalCoordSystem) const;
+
+    /**
+     * Checks whether a given position in the window's coordinate system is located within any of the quadrants and
+     * if so, if it is located within any of that quadrant's cells.
+     * @param p the position in the window coordinate system
+     * @return A pair of optionals. If the position is within a quadrant, then the first value is that quadrant,
+     * otherwise it is empty. If the position is additionally within a cell within that quadrant, then the second
+     * value is also a pair that represents the row and column (in range [0,2]) within the quadrant. Otherwise the
+     * second value is empty. If the first value is empty, the second value will always be empty too.
+     */
+    CoordinateTuple getCoordinateTupleFromPosition(sf::Vector2f p) const;
 };
 
 

@@ -5,15 +5,8 @@
 #include "Game.h"
 
 #include <iostream>
+#include <memory>
 #include <optional>
-
-std::ostream& operator<<(std::ostream& os, const sf::FloatRect& v) {
-    os << "Left: " << v.left << std::endl;
-    os << "Top: " << v.top << std::endl;
-    os << "Height: " << v.height << std::endl;
-    os << "Width: " << v.width << std::endl;
-    return os;
-}
 
 Game::Game() {
     configureQuadrantShapes();
@@ -50,27 +43,29 @@ void Game::run() {
 void Game::processEvents() {
     sf::Event event{};
     while (mWindow.pollEvent(event))
-    {
-        // "close requested" event: we close the window
-        if (event.type == sf::Event::Closed)
-            mWindow.close();
-
-        if (event.type == sf::Event::MouseButtonPressed) {
-            auto x = static_cast<float>(event.mouseButton.x);
-            auto y = static_cast<float>(event.mouseButton.y);
-            auto [q, c] = getCoordinateTupleFromPosition({x,y});
-            std::cout << "A: " << x << ' ' << y << std::endl;
-            std::cout << "Q: " << (q ? std::to_string(to_underlying(*q)) : "Nope") << std::endl;
-            std::cout << "C1: " << (c ? std::to_string(c->first) : "Nope") << std::endl;
-            std::cout << "C2: " << (c ? std::to_string(c->second) : "Nope") << std::endl;
+        switch (event.type) {
+            case sf::Event::Closed:
+                mWindow.close();
+                break;
+//            case sf::Event::MouseButtonPressed: {
+//                auto x = static_cast<float>(event.mouseButton.x);
+//                auto y = static_cast<float>(event.mouseButton.y);
+//                auto[q, c] = getCoordinateTupleFromPosition({x, y});
+//                std::cout << "A: " << x << ' ' << y << std::endl;
+//                std::cout << "Q: " << (q ? std::to_string(to_underlying(*q)) : "Nope") << std::endl;
+//                std::cout << "C1: " << (c ? std::to_string(c->first) : "Nope") << std::endl;
+//                std::cout << "C2: " << (c ? std::to_string(c->second) : "Nope") << std::endl;
+//                break;
+//                }
+        default:
+            // hand off to state for specific processing
+            mSavedStates[to_underlying(pBoard->getPhase())]->processEvent(event);
         }
-    }
 }
 
 void Game::render() {
     // Set background colour
-    sf::Color turnColour = (pBoard->getTurn() == Colour::WHITE ? sf::Color::White : sf::Color::Black);
-    mWindow.clear(turnColour);
+    mWindow.clear(toSFColor(pBoard->getTurn()));
 
     for (auto q : mQuadrantRenderOrder) {
         renderQuadrant(q);
@@ -85,16 +80,11 @@ void Game::renderQuadrant(const Quadrant q) {
 
     for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 3; col++) {
-            mCellShape.setFillColor(getSFColorAt(q, row, col));
+            auto c = pBoard->getColourAt(q, row, col);
+            mCellShape.setFillColor(c ? toSFColor(*c) : sf::Color{150,0,0});
             mWindow.draw(mCellShape, v * mCellTransforms[row][col]);
         }
     }
-}
-
-sf::Color Game::getSFColorAt(Quadrant q, int row, int col) {
-    std::optional<Colour> c = pBoard->getColourAt(q, row, col);
-    if (c) return (*c == Colour::WHITE ? sf::Color::White : sf::Color::Black);
-    return sf::Color{150,0,0};
 }
 
 sf::Transform Game::translation(sf::Vector2f t) {
@@ -140,4 +130,8 @@ Game::CoordinateTuple Game::getCoordinateTupleFromPosition(sf::Vector2f p) const
     if (q) coords = getCellCoordsFromPosition(pInQuadrantLocalCoordSystem);
 
     return CoordinateTuple{q, coords};
+}
+
+sf::Color Game::toSFColor(Colour c) {
+    return (c == Colour::WHITE ? sf::Color::White : sf::Color::Black);
 }

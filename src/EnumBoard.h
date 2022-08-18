@@ -74,8 +74,8 @@ private:
     void syncQuadrantsFromGrid();
 
     /// Utilities
-    static void reverseRows(QuadrantGrid q);
-    static void transpose(QuadrantGrid q);
+    static void reverseRows(QuadrantGrid& q);
+    static void transpose(QuadrantGrid& q);
 
 };
 

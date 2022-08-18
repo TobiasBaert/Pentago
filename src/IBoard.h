@@ -28,9 +28,9 @@ inline Colour operator!(Colour c) {
 /**
  * The two phases of every turn.
  */
-enum class Phase {
-    PLACEMENT,
-    ROTATION
+enum class Phase : size_t {
+    PLACEMENT = 0,
+    ROTATION = 1
 };
 
 /**
