@@ -1,19 +1,20 @@
 target_sources(Pentago PRIVATE
-        BitBoardRepresentation.cpp
-        BitBoardRepresentation.h
-        EnumBoard.cpp
-        EnumBoard.h
+        BoardRepresentation/BitBoardRepresentation.cpp
+        BoardRepresentation/BitBoardRepresentation.h
+        BoardRepresentation/EnumBoard.cpp
+        BoardRepresentation/EnumBoard.h
+        BoardRepresentation/IBoard.cpp
+        BoardRepresentation/IBoard.h
+        GameStates/IState.h
+        GameStates/PlacementState.cpp
+        GameStates/PlacementState.h
+        GameStates/RotationState.cpp
+        GameStates/RotationState.h
         Game.cpp
         Game.h
-        IBoard.cpp
-        IBoard.h
         RoundedRectangleShape.hpp
-        Utilities.h
-        IState.h
-        PlacementState.cpp
-        PlacementState.h
-        RotationState.cpp
-        RotationState.h)
+        Utilities.h)
 
 target_include_directories(Pentago PRIVATE
-        )
+        BoardRepresentation
+        GameStates)

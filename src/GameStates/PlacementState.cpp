@@ -2,14 +2,14 @@
 // Created by Tobias Baert on 18/08/2022.
 //
 
-#include "RotationState.h"
+#include "PlacementState.h"
 
-#include "Game.h"
-#include "Utilities.h"
+#include "../Game.h"
+#include "../Utilities.h"
 
-RotationState::RotationState(Game& game) : IState(game) {}
+PlacementState::PlacementState(Game& game) : IState(game) {}
 
-void RotationState::processEvent(sf::Event e) {
+void PlacementState::processEvent(sf::Event e) {
     switch (e.type) {
         case sf::Event::MouseButtonPressed:
             if (e.mouseButton.button == sf::Mouse::Button::Left) {
@@ -27,9 +27,10 @@ void RotationState::processEvent(sf::Event e) {
     }
 }
 
-void RotationState::processLMB() {
-    sf::Vector2f v;
-    auto q = rGame.getQuadrantFromPosition(pressEndPos, v);
-    if (q) rGame.pBoard->rotate(*q, RotationDir::COUNTERCLOCKWISE);
+void PlacementState::processLMB() {
+    if (Util::distanceLessOrEqualTo(pressEndPos, pressStartPos, 5.f)) {
+        auto [q, c] = rGame.getCoordinateTupleFromPosition(pressEndPos);
+        if (q && c) rGame.pBoard->placeAt(*q, c->first, c->second);
+    }
 }
 

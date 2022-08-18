@@ -9,8 +9,8 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 
-#include "EnumBoard.h"
-#include "IBoard.h"
+#include "BoardRepresentation/EnumBoard.h"
+#include "BoardRepresentation/IBoard.h"
 #include "IState.h"
 #include "PlacementState.h"
 #include "RotationState.h"
