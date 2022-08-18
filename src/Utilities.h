@@ -17,7 +17,8 @@ namespace Util {
      * @param second second point
      * @return returns the square of the euclidean distance between the first and second point
      */
-    inline double squaredDistance(sf::Vector2f first, sf::Vector2f second) {
+    template<typename T>
+    inline double squaredDistance(sf::Vector2<T> first, sf::Vector2<T> second) {
         return std::pow(first.x - second.x, 2) + std::pow(first.y - second.y, 2);
     }
 
@@ -28,7 +29,8 @@ namespace Util {
      * @param maxDistance maximum distance
      * @return true iff the distance between the two points <= the maximum distance
      */
-    inline bool distanceLessOrEqualTo(sf::Vector2f first, sf::Vector2f second, float maxDistance) {
+    template<typename T>
+    inline bool distanceLessOrEqualTo(sf::Vector2<T> first, sf::Vector2<T> second, float maxDistance) {
         return squaredDistance(first, second) <= std::pow(maxDistance, 2);
     }
 
