@@ -26,6 +26,23 @@ inline Colour operator!(Colour c) {
 }
 
 /**
+ * The two phases of every turn.
+ */
+enum class Phase {
+    PLACEMENT,
+    ROTATION
+};
+
+/**
+ * Inverts from one phase to the other.
+ * @param p the phase to invert
+ * @return if p is PLACEMENT, return ROTATION, otherwise return PLACEMENT
+ */
+inline Phase operator!(Phase p) {
+    return (p == Phase::PLACEMENT ? Phase::ROTATION : Phase::PLACEMENT);
+}
+
+/**
  * The two directions to rotate quadrants in.
  */
 enum class RotationDir : size_t {
@@ -72,38 +89,44 @@ public:
     [[nodiscard]] virtual Colour getTurn() const = 0;
 
     /**
+     * Return the phase of the current turn.
+     * @return the phase of the current turn.
+     */
+    [[nodiscard]] virtual Phase getPhase() const = 0;
+
+    /**
      * Return the colour of the marble in the cell at the given row and column, if any.
-     * @param x the global row, in the range [0,5]
-     * @param y the global column, in the range [0,5]
+     * @param row the global row, in the range [0,5]
+     * @param col the global column, in the range [0,5]
      * @return if a colour is present in the cell at given row and column, otherwise return an empty optional
      */
-    [[nodiscard]] virtual OptionalColour getColourAt(int x, int y) const = 0;
+    [[nodiscard]] virtual OptionalColour getColourAt(size_t row, size_t col) const = 0;
 
     /**
      * Return the colour of the marble in the cell at the given row and column WITHIN a particular quadrant, if any.
      * @param q the quadrant
-     * @param x the row within the quadrant, in the range [0,2]
-     * @param y the column within the quadrant, in the range [0,2]
+     * @param row the row within the quadrant, in the range [0,2]
+     * @param col the column within the quadrant, in the range [0,2]
      * @return if a colour is present in the cell at given row and column within the chosen quadrant, otherwise
      * return an empty optional
      */
-    [[nodiscard]] virtual OptionalColour getColourAt(Quadrant q, int x, int y) const;
+    [[nodiscard]] virtual OptionalColour getColourAt(Quadrant q, size_t row, size_t col) const;
 
     /**
      * Place a marble of the currently playing colour in the cell at the given row and column.
-     * @param x the global row, in the range [0,5]
-     * @param y the global column, in the range [0,5]
+     * @param row the global row, in the range [0,5]
+     * @param col the global column, in the range [0,5]
      */
-    virtual void placeAt(int x, int y) = 0;
+    virtual void placeAt(size_t row, size_t col) = 0;
 
     /**
      * Place a marble of the currently playing colour in the cell at the given row and column WITHIN a particular
      * quadrant.
      * @param q the quadrant
-     * @param x the row within the quadrant, in the range [0,2]
-     * @param y the column within the quadrant, in the range [0,2]
+     * @param row the row within the quadrant, in the range [0,2]
+     * @param col the column within the quadrant, in the range [0,2]
      */
-    virtual void placeAt(Quadrant q, int x, int y );
+    virtual void placeAt(Quadrant q, size_t row, size_t col );
 
     /**
      * Rotate a given quadrant 90 degrees in the given direction.
@@ -111,11 +134,6 @@ public:
      * @param d the direction to rotate in
      */
     virtual void rotate(Quadrant q, RotationDir d) = 0;
-
-    /**
-     * Switches the turn to the other colour.
-     */
-    virtual void advanceTurn() = 0;
 
     /**
      * Checks if the game has reached an end condition.
@@ -132,6 +150,23 @@ public:
      * meets the condition, then return that player's colour. Otherwise, return an empty optional.
      */
     [[nodiscard]] virtual OptionalColour getWinner() const = 0;
+
+protected:
+    /**
+     * Checks whether a given pair of coordinates are valid board coordinates.
+     * @param x the row coordinate
+     * @param y the column coordinate
+     * @return returns true iff both coordinates are in the range [0,5]
+     */
+    static bool areValidGlobalCoords(size_t x, size_t y);
+
+    /**
+     * Checks whether a given pair of coordinates are valid coordinates within a quadrant.
+     * @param x the row coordinate
+     * @param y the column coordinate
+     * @return returns true iff both coordinates are in the range [0,2]
+     */
+    static bool areValidQuadrantCoords(size_t x, size_t y);
 };
 
 

@@ -20,17 +20,17 @@ public:
 
     [[nodiscard]] Colour getTurn() const override;
 
-    [[nodiscard]] OptionalColour getColourAt(int x, int y) const override;
+    [[nodiscard]] Phase getPhase() const override;
 
-    [[nodiscard]] OptionalColour getColourAt(Quadrant q, int x, int y) const override;
+    [[nodiscard]] OptionalColour getColourAt(size_t row, size_t col) const override;
 
-    void placeAt(Quadrant q, int x, int y) override;
+    [[nodiscard]] OptionalColour getColourAt(Quadrant q, size_t row, size_t col) const override;
 
-    void placeAt(int x, int y) override;
+    void placeAt(Quadrant q, size_t row, size_t col) override;
+
+    void placeAt(size_t row, size_t col) override;
 
     void rotate(Quadrant q, RotationDir d) override;
-
-    void advanceTurn() override;
 
     [[nodiscard]] bool hasEnded() const override;
 
@@ -43,6 +43,11 @@ private:
     using QuadrantGrid = std::array<std::array<OptionalColour, 3>, 3>;
 
     Colour mTurn;
+    Phase mPhase;
+
+    void advanceTurn();
+    void advancePhase();
+
     Grid mGrid;
     std::array<QuadrantGrid, 4> mQuadrants;
 
@@ -69,9 +74,6 @@ private:
     void syncQuadrantsFromGrid();
 
     /// Utilities
-    static bool isValidGlobalCoord(int x, int y);
-    static bool isValidQuadrantCoord(int x, int y);
-
     static void reverseRows(QuadrantGrid q);
     static void transpose(QuadrantGrid q);
 

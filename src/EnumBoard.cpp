@@ -4,13 +4,16 @@
 
 #include "EnumBoard.h"
 
-EnumBoard::EnumBoard() : mTurn(Colour::WHITE)
+EnumBoard::EnumBoard()
+               : mTurn(Colour::WHITE)
+               , mPhase(Phase::PLACEMENT)
                , mGrid()
                , mQuadrants()
                , mHasEnded(false) {}
 
 void EnumBoard::reset() {
     mTurn = Colour::WHITE;
+    mPhase = Phase::PLACEMENT;
     mGrid.fill({});
     syncQuadrantsFromGrid();
     syncVictoryData();
@@ -42,29 +45,40 @@ Colour EnumBoard::getTurn() const {
     return mTurn;
 }
 
-IBoard::OptionalColour EnumBoard::getColourAt(int x, int y) const {
-    assert(isValidGlobalCoord(x, y));
-    return mGrid[x][y];
+Phase EnumBoard::getPhase() const {
+    return mPhase;
 }
 
-
-IBoard::OptionalColour EnumBoard::getColourAt(Quadrant q, int x, int y) const {
-    assert(isValidQuadrantCoord(x,y));
-    return mQuadrants[to_underlying(q)][x][y];
+IBoard::OptionalColour EnumBoard::getColourAt(size_t row, size_t col) const {
+    assert(areValidGlobalCoords(row, col));
+    return mGrid[row][col];
 }
 
-void EnumBoard::placeAt(int x, int y) {
-    assert(isValidGlobalCoord(x, y));
-    mGrid[x][y] = mTurn;
+IBoard::OptionalColour EnumBoard::getColourAt(Quadrant q, size_t row, size_t col) const {
+    assert(areValidQuadrantCoords(row, col));
+    return mQuadrants[to_underlying(q)][row][col];
+}
+
+void EnumBoard::placeAt(size_t row, size_t col) {
+    assert(getPhase() == Phase::PLACEMENT);
+    assert(areValidGlobalCoords(row, col));
+    mGrid[row][col] = mTurn;
     syncQuadrantsFromGrid();
+    syncVictoryData();
+    advancePhase();
 }
 
-void EnumBoard::placeAt(Quadrant q, int x, int y) {
-    mQuadrants[to_underlying(q)][x][y] = mTurn;
+void EnumBoard::placeAt(Quadrant q, size_t row, size_t col) {
+    assert(getPhase() == Phase::PLACEMENT);
+    assert(areValidQuadrantCoords(row, col));
+    mQuadrants[to_underlying(q)][row][col] = mTurn;
     syncGridFromQuadrants();
+    syncVictoryData();
+    advancePhase();
 }
 
 void EnumBoard::rotate(Quadrant q, RotationDir d) {
+    assert(getPhase() == Phase::ROTATION);
     switch (d) {
         case RotationDir::CLOCKWISE:
             transpose(mQuadrants[to_underlying(q)]);
@@ -76,14 +90,21 @@ void EnumBoard::rotate(Quadrant q, RotationDir d) {
             break;
     }
     syncGridFromQuadrants();
-}
-
-void EnumBoard::advanceTurn() {
-    mTurn = (to_underlying(mTurn) ? Colour::BLACK : Colour::WHITE);
+    syncVictoryData();
+    advancePhase();
+    advanceTurn();
 }
 
 bool EnumBoard::hasEnded() const {
     return mHasEnded;
+}
+
+void EnumBoard::advanceTurn() {
+    mTurn = !mTurn;
+}
+
+void EnumBoard::advancePhase() {
+    mPhase = !mPhase;
 }
 
 IBoard::OptionalColour EnumBoard::getWinner() const {
@@ -163,15 +184,6 @@ void EnumBoard::checkSeries(const IntPairVector& origins, const OffsetArray& off
         // If a series was found, set the corresponding flag: index 1 for WHITE, index 0 for BLACK
         if (series) mHasWinningPosition.set(to_underlying(*s[0]));
     }
-}
-
-
-bool EnumBoard::isValidGlobalCoord(int x, int y) {
-    return 0 <= x && x < 6 && 0 <= y && y < 6;
-}
-
-bool EnumBoard::isValidQuadrantCoord(int x, int y) {
-    return 0 <= x && x < 3 && 0 <= y && y < 3;
 }
 
 void EnumBoard::reverseRows(QuadrantGrid q) {

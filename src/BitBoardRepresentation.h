@@ -17,13 +17,13 @@ public:
 
     [[nodiscard]] Colour getTurn() const override;
 
-    [[nodiscard]] OptionalColour getColourAt(int x, int y) const override;
+    [[nodiscard]] Phase getPhase() const override;
 
-    void placeAt(int x, int y) override;
+    [[nodiscard]] OptionalColour getColourAt(size_t row, size_t col) const override;
+
+    void placeAt(size_t row, size_t col) override;
 
     void rotate(Quadrant q, RotationDir d) override;
-
-    void advanceTurn() override;
 
     [[nodiscard]] bool hasEnded() const override;
 
@@ -34,6 +34,8 @@ private:
 
     /// Board state
     Colour mTurn;
+    Phase mPhase;
+
     BitBoard mColours[2];
     BitBoard& mWhite = mColours[to_underlying(Colour::WHITE)];
     BitBoard& mBlack = mColours[to_underlying(Colour::BLACK)];
@@ -46,7 +48,9 @@ private:
     bool mWhiteHasWinningPosition;
     bool mBlackHasWinningPosition;
 
-    inline void syncDerivedFields();
+    inline void syncDerivedData();
+    inline void advanceTurn();
+    inline void advancePhase();
 
     /// Rotations
     inline void rotateQuadrant90Clockwise(Quadrant q);
@@ -55,7 +59,7 @@ private:
     inline void reflectQuadrantDiagonally(Quadrant q);
 
     /// Utilities
-    inline static size_t getIndexFrom(int row, int col);
+    inline static size_t getIndexFrom(size_t row, size_t col);
     inline static bool hasWinningPosition(BitBoard x);
     inline static void deltaSwapInPlace(BitBoard& x, BitBoard select, size_t delta);
 };

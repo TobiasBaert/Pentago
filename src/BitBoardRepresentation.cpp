@@ -6,6 +6,7 @@
 
 BitBoardRepresentation::BitBoardRepresentation()
     : mTurn(Colour::WHITE)
+    , mPhase(Phase::PLACEMENT)
     , mHasEnded(false)
     , mWhiteHasWinningPosition(false)
     , mBlackHasWinningPosition(false) {}
@@ -13,26 +14,34 @@ BitBoardRepresentation::BitBoardRepresentation()
 
 void BitBoardRepresentation::reset() {
     mTurn = Colour::WHITE;
+    mPhase = Phase::PLACEMENT;
     mWhite.reset();
     mBlack.reset();
-    syncDerivedFields();
+    syncDerivedData();
 }
 
 Colour BitBoardRepresentation::getTurn() const {
     return mTurn;
 }
 
-IBoard::OptionalColour BitBoardRepresentation::getColourAt(int x, int y) const {
-    size_t index = getIndexFrom(x, y);
+Phase BitBoardRepresentation::getPhase() const {
+    return mPhase;
+}
+
+IBoard::OptionalColour BitBoardRepresentation::getColourAt(size_t row, size_t col) const {
+    size_t index = getIndexFrom(row, col);
     if (mWhite[index]) return Colour::WHITE;
     if (mBlack[index]) return Colour::BLACK;
     return {std::nullopt};
 }
 
-void BitBoardRepresentation::placeAt(int x, int y) {
-    mColours[to_underlying(mTurn)].set(getIndexFrom(x, y));
+void BitBoardRepresentation::placeAt(size_t row, size_t col) {
+    assert(mPhase == Phase::PLACEMENT);
+    assert(areValidGlobalCoords(row, col));
+    mColours[to_underlying(mTurn)].set(getIndexFrom(row, col));
 
-    syncDerivedFields();
+    syncDerivedData();
+    advancePhase();
 }
 
 void BitBoardRepresentation::rotate(Quadrant q, RotationDir d) {
@@ -43,11 +52,9 @@ void BitBoardRepresentation::rotate(Quadrant q, RotationDir d) {
 
     (this->*(table[to_underlying(d)]))(q);
 
-    syncDerivedFields();
-}
-
-void BitBoardRepresentation::advanceTurn() {
-    mTurn = !mTurn;
+    syncDerivedData();
+    advancePhase();
+    advanceTurn();
 }
 
 bool BitBoardRepresentation::hasEnded() const {
@@ -62,14 +69,22 @@ IBoard::OptionalColour BitBoardRepresentation::getWinner() const {
     return table[mWhiteHasWinningPosition][mBlackHasWinningPosition];
 }
 
-void BitBoardRepresentation::syncDerivedFields() {
+void BitBoardRepresentation::advanceTurn() {
+    mTurn = !mTurn;
+}
+
+void BitBoardRepresentation::advancePhase() {
+    mPhase = !mPhase;
+}
+
+void BitBoardRepresentation::syncDerivedData() {
     mOccupancy = mWhite | mBlack;
     mWhiteHasWinningPosition = hasWinningPosition(mWhite);
     mBlackHasWinningPosition = hasWinningPosition(mBlack);
     mHasEnded = mWhiteHasWinningPosition || mBlackHasWinningPosition || mOccupancy.all();
 }
 
-size_t BitBoardRepresentation::getIndexFrom(int row, int col) {
+size_t BitBoardRepresentation::getIndexFrom(size_t row, size_t col) {
     return (5 - row) * 6 + col; // using Little-Endian Rank-File Mapping
 }
 
