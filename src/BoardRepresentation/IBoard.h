@@ -30,7 +30,7 @@ namespace Enums {
     /**
      * The two phases of every turn.
      */
-    enum class Phase : size_t {
+    enum class TurnPhase : size_t {
         PLACEMENT = 0,
         ROTATION = 1
     };
@@ -40,8 +40,8 @@ namespace Enums {
      * @param p the phase to invert
      * @return if p is PLACEMENT, return ROTATION, otherwise return PLACEMENT
      */
-    inline Phase operator!(Phase p) {
-        return (p == Phase::PLACEMENT ? Phase::ROTATION : Phase::PLACEMENT);
+    inline TurnPhase operator!(TurnPhase p) {
+        return (p == TurnPhase::PLACEMENT ? TurnPhase::ROTATION : TurnPhase::PLACEMENT);
     }
 
     /**
@@ -94,7 +94,7 @@ public:
      * Return the phase of the current turn.
      * @return the phase of the current turn.
      */
-    [[nodiscard]] virtual Enums::Phase getPhase() const = 0;
+    [[nodiscard]] virtual Enums::TurnPhase getTurnPhase() const = 0;
 
     /**
      * Return the colour of the marble in the cell at the given row and column, if any.

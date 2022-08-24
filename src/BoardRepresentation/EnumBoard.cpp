@@ -8,14 +8,14 @@ using namespace Enums;
 
 EnumBoard::EnumBoard()
                : mTurn(Colour::WHITE)
-               , mPhase(Phase::PLACEMENT)
+               , mPhase(TurnPhase::PLACEMENT)
                , mGrid()
                , mQuadrants()
                , mHasEnded(false) {}
 
 void EnumBoard::reset() {
     mTurn = Colour::WHITE;
-    mPhase = Phase::PLACEMENT;
+    mPhase = TurnPhase::PLACEMENT;
     mGrid.fill({});
     syncQuadrantsFromGrid();
     syncVictoryData();
@@ -47,7 +47,7 @@ Colour EnumBoard::getTurn() const {
     return mTurn;
 }
 
-Phase EnumBoard::getPhase() const {
+TurnPhase EnumBoard::getTurnPhase() const {
     return mPhase;
 }
 
@@ -62,7 +62,7 @@ IBoard::OptionalColour EnumBoard::getColourAt(Quadrant q, size_t row, size_t col
 }
 
 void EnumBoard::placeAt(size_t row, size_t col) {
-    assert(getPhase() == Phase::PLACEMENT);
+    assert(getTurnPhase() == TurnPhase::PLACEMENT);
     assert(areValidGlobalCoords(row, col));
     if (mGrid[row][col].has_value()) return;
 
@@ -74,7 +74,7 @@ void EnumBoard::placeAt(size_t row, size_t col) {
 }
 
 void EnumBoard::placeAt(Quadrant q, size_t row, size_t col) {
-    assert(getPhase() == Phase::PLACEMENT);
+    assert(getTurnPhase() == TurnPhase::PLACEMENT);
     assert(areValidQuadrantCoords(row, col));
     if (mQuadrants[to_underlying(q)][row][col].has_value()) return;
 
@@ -86,7 +86,7 @@ void EnumBoard::placeAt(Quadrant q, size_t row, size_t col) {
 }
 
 void EnumBoard::rotate(Quadrant q, RotationDir d) {
-    assert(getPhase() == Phase::ROTATION);
+    assert(getTurnPhase() == TurnPhase::ROTATION);
     switch (d) {
         case RotationDir::CLOCKWISE:
             transpose(mQuadrants[to_underlying(q)]);

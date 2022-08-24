@@ -20,7 +20,7 @@ public:
 
     [[nodiscard]] Enums::Colour getTurn() const override;
 
-    [[nodiscard]] Enums::Phase getPhase() const override;
+    [[nodiscard]] Enums::TurnPhase getTurnPhase() const override;
 
     [[nodiscard]] OptionalColour getColourAt(size_t row, size_t col) const override;
 
@@ -43,7 +43,7 @@ private:
     using QuadrantGrid = std::array<std::array<OptionalColour, 3>, 3>;
 
     Enums::Colour mTurn;
-    Enums::Phase mPhase;
+    Enums::TurnPhase mPhase;
 
     void advanceTurn();
     void advancePhase();

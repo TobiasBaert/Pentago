@@ -17,7 +17,7 @@ public:
 
     [[nodiscard]] Enums::Colour getTurn() const override;
 
-    [[nodiscard]] Enums::Phase getPhase() const override;
+    [[nodiscard]] Enums::TurnPhase getTurnPhase() const override;
 
     [[nodiscard]] OptionalColour getColourAt(size_t row, size_t col) const override;
 
@@ -34,7 +34,7 @@ private:
 
     /// Board state
     Enums::Colour mTurn;
-    Enums::Phase mPhase;
+    Enums::TurnPhase mPhase;
 
     BitBoard mColours[2];
     BitBoard& mWhite = mColours[Enums::to_underlying(Enums::Colour::WHITE)];

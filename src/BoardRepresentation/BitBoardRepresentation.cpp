@@ -9,7 +9,7 @@ using namespace Enums;
 
 BitBoardRepresentation::BitBoardRepresentation()
     : mTurn(Colour::WHITE)
-    , mPhase(Phase::PLACEMENT)
+    , mPhase(TurnPhase::PLACEMENT)
     , mHasEnded(false)
     , mWhiteHasWinningPosition(false)
     , mBlackHasWinningPosition(false) {}
@@ -17,7 +17,7 @@ BitBoardRepresentation::BitBoardRepresentation()
 
 void BitBoardRepresentation::reset() {
     mTurn = Colour::WHITE;
-    mPhase = Phase::PLACEMENT;
+    mPhase = TurnPhase::PLACEMENT;
     mWhite.reset();
     mBlack.reset();
     syncDerivedData();
@@ -27,7 +27,7 @@ Colour BitBoardRepresentation::getTurn() const {
     return mTurn;
 }
 
-Phase BitBoardRepresentation::getPhase() const {
+TurnPhase BitBoardRepresentation::getTurnPhase() const {
     return mPhase;
 }
 
@@ -39,7 +39,7 @@ IBoard::OptionalColour BitBoardRepresentation::getColourAt(size_t row, size_t co
 }
 
 void BitBoardRepresentation::placeAt(size_t row, size_t col) {
-    assert(mPhase == Phase::PLACEMENT);
+    assert(mPhase == TurnPhase::PLACEMENT);
     assert(areValidGlobalCoords(row, col));
     if (mOccupancy[getIndexFrom(row, col)]) return;
 

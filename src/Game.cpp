@@ -59,7 +59,7 @@ void Game::processEvents() {
 }
 
 void Game::processInputs() {
-    mSavedStates[to_underlying(pBoard->getPhase())]->processInputs();
+    mSavedStates[to_underlying(pBoard->getTurnPhase())]->processInputs();
 }
 
 void Game::render() {
