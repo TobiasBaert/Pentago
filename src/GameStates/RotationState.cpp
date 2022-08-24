@@ -66,7 +66,7 @@ void RotationState::syncRotation() {
 void RotationState::doRotation() {
     assert(rGame.mRotatingQuadrant);
     auto [q, angle] = *(rGame.mRotatingQuadrant);
-    if (abs(angle) > 80) {
+    if (75.f <= abs(angle) && abs(angle) <= 105.f) {
         if (angle > 0) rGame.pBoard->rotate(q, RotationDir::CLOCKWISE);
         else rGame.pBoard->rotate(q, RotationDir::COUNTERCLOCKWISE);
     }

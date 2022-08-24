@@ -27,7 +27,7 @@ void PlacementState::processInputs() {
 }
 
 void PlacementState::processLMB(sf::Vector2f pressEndPos) {
-    if (Util::distanceLessOrEqualTo(pressStartPos, pressEndPos, 5.f)) {
+    if (Util::distanceLessOrEqualTo(pressStartPos, pressEndPos, 15.f)) {
         auto [q, c] = rGame.getCoordinateTupleFromPosition(pressEndPos);
         if (q && c) rGame.pBoard->placeAt(*q, c->first, c->second);
     }
