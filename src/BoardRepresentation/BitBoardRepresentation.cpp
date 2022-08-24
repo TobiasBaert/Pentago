@@ -10,7 +10,6 @@ using namespace Enums;
 BitBoardRepresentation::BitBoardRepresentation()
     : mTurn(Colour::WHITE)
     , mPhase(TurnPhase::PLACEMENT)
-    , mHasEnded(false)
     , mWhiteHasWinningPosition(false)
     , mBlackHasWinningPosition(false) {}
 
@@ -29,6 +28,16 @@ Colour BitBoardRepresentation::getTurn() const {
 
 TurnPhase BitBoardRepresentation::getTurnPhase() const {
     return mPhase;
+}
+
+
+GamePhase BitBoardRepresentation::getGamePhase() const {
+    static constexpr GamePhase array[2][2] = {
+            {GamePhase::PLAYING,        GamePhase::BLACK_VICTORY},
+            {GamePhase::WHITE_VICTORY,  GamePhase::DRAW         }
+    };
+
+    return array[mWhiteHasWinningPosition || mOccupancy.all()][mBlackHasWinningPosition || mOccupancy.all()];
 }
 
 IBoard::OptionalColour BitBoardRepresentation::getColourAt(size_t row, size_t col) const {
@@ -62,18 +71,6 @@ void BitBoardRepresentation::rotate(Quadrant q, RotationDir d) {
     advanceTurn();
 }
 
-bool BitBoardRepresentation::hasEnded() const {
-    return mHasEnded;
-}
-
-IBoard::OptionalColour BitBoardRepresentation::getWinner() const {
-    static constexpr OptionalColour table[2][2] = {
-            {{std::nullopt}, {Colour::BLACK}},
-            {{Colour::WHITE}, {std::nullopt}}
-    };
-    return table[mWhiteHasWinningPosition][mBlackHasWinningPosition];
-}
-
 void BitBoardRepresentation::advanceTurn() {
     mTurn = !mTurn;
 }
@@ -86,7 +83,6 @@ void BitBoardRepresentation::syncDerivedData() {
     mOccupancy = mWhite | mBlack;
     mWhiteHasWinningPosition = hasWinningPosition(mWhite);
     mBlackHasWinningPosition = hasWinningPosition(mBlack);
-    mHasEnded = mWhiteHasWinningPosition || mBlackHasWinningPosition || mOccupancy.all();
 }
 
 size_t BitBoardRepresentation::getIndexFrom(size_t row, size_t col) {

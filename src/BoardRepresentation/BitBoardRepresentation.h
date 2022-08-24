@@ -19,15 +19,13 @@ public:
 
     [[nodiscard]] Enums::TurnPhase getTurnPhase() const override;
 
+    [[nodiscard]] Enums::GamePhase getGamePhase() const override;
+
     [[nodiscard]] OptionalColour getColourAt(size_t row, size_t col) const override;
 
     void placeAt(size_t row, size_t col) override;
 
     void rotate(Enums::Quadrant q, Enums::RotationDir d) override;
-
-    [[nodiscard]] bool hasEnded() const override;
-
-    [[nodiscard]] OptionalColour getWinner() const override;
 
 private:
     using BitBoard = std::bitset<36>;
@@ -44,7 +42,6 @@ private:
     BitBoard mOccupancy;
 
     /// Victory detection
-    bool mHasEnded;
     bool mWhiteHasWinningPosition;
     bool mBlackHasWinningPosition;
 

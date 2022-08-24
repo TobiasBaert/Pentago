@@ -22,6 +22,8 @@ public:
 
     [[nodiscard]] Enums::TurnPhase getTurnPhase() const override;
 
+    [[nodiscard]] Enums::GamePhase getGamePhase() const override;
+
     [[nodiscard]] OptionalColour getColourAt(size_t row, size_t col) const override;
 
     [[nodiscard]] OptionalColour getColourAt(Enums::Quadrant q, size_t row, size_t col) const override;
@@ -31,10 +33,6 @@ public:
     void placeAt(size_t row, size_t col) override;
 
     void rotate(Enums::Quadrant q, Enums::RotationDir d) override;
-
-    [[nodiscard]] bool hasEnded() const override;
-
-    [[nodiscard]] OptionalColour getWinner() const override;
 
 private:
 
@@ -52,7 +50,6 @@ private:
     std::array<QuadrantGrid, 4> mQuadrants;
 
     /// Victory detection
-    bool mHasEnded;
     std::bitset<2> mHasWinningPosition;
 
     void syncVictoryData();
@@ -61,7 +58,7 @@ private:
     using IntPairVector = std::vector<IntPair>;
     using OffsetArray = std::array<IntPair,5>;
 
-    bool isFullyOccupied();
+    [[nodiscard]] bool isFullyOccupied() const;
 
     void checkHorizontal();
     void checkVertical();

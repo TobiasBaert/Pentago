@@ -44,6 +44,13 @@ namespace Enums {
         return (p == TurnPhase::PLACEMENT ? TurnPhase::ROTATION : TurnPhase::PLACEMENT);
     }
 
+    enum class GamePhase : size_t {
+        PLAYING = 0,
+        DRAW,
+        WHITE_VICTORY,
+        BLACK_VICTORY
+    };
+
     /**
      * The two directions to rotate quadrants in.
      */
@@ -97,6 +104,12 @@ public:
     [[nodiscard]] virtual Enums::TurnPhase getTurnPhase() const = 0;
 
     /**
+     * Returns the current phase of the whole game.
+     * @return the current
+     */
+    [[nodiscard]] virtual Enums::GamePhase getGamePhase() const = 0;
+
+    /**
      * Return the colour of the marble in the cell at the given row and column, if any.
      * @param row the global row, in the range [0,5]
      * @param col the global column, in the range [0,5]
@@ -140,22 +153,6 @@ public:
      * @param d the direction to rotate in
      */
     virtual void rotate(Enums::Quadrant q, Enums::RotationDir d) = 0;
-
-    /**
-     * Checks if the game has reached an end condition.
-     * @return true iff any colour has placed 5 marbles in a row on the board or the board is completely occupied.
-     */
-    [[nodiscard]] virtual bool hasEnded() const = 0;
-
-    /**
-     * Returns the victor of a game, if any.
-     *
-     * If an empty optional is returned, then interpretation depends on hasEnded(): if hasEnded(), then the result
-     * represents a draw. Otherwise, the result indicates the game has not yet ended.
-     * @return if both players have placed 5 marbles in a row, then return an empty optional. If just one player
-     * meets the condition, then return that player's colour. Otherwise, return an empty optional.
-     */
-    [[nodiscard]] virtual OptionalColour getWinner() const = 0;
 
 protected:
     /**

@@ -10,8 +10,7 @@ EnumBoard::EnumBoard()
                : mTurn(Colour::WHITE)
                , mPhase(TurnPhase::PLACEMENT)
                , mGrid()
-               , mQuadrants()
-               , mHasEnded(false) {}
+               , mQuadrants() {}
 
 void EnumBoard::reset() {
     mTurn = Colour::WHITE;
@@ -49,6 +48,13 @@ Colour EnumBoard::getTurn() const {
 
 TurnPhase EnumBoard::getTurnPhase() const {
     return mPhase;
+}
+
+GamePhase EnumBoard::getGamePhase() const {
+    if (mHasWinningPosition.all() || isFullyOccupied()) return GamePhase::DRAW;
+    if (mHasWinningPosition[to_underlying(Colour::BLACK)]) return GamePhase::BLACK_VICTORY;
+    if (mHasWinningPosition[to_underlying(Colour::WHITE)]) return GamePhase::WHITE_VICTORY;
+    else return GamePhase::PLAYING;
 }
 
 IBoard::OptionalColour EnumBoard::getColourAt(size_t row, size_t col) const {
@@ -103,10 +109,6 @@ void EnumBoard::rotate(Quadrant q, RotationDir d) {
     advanceTurn();
 }
 
-bool EnumBoard::hasEnded() const {
-    return mHasEnded;
-}
-
 void EnumBoard::advanceTurn() {
     mTurn = !mTurn;
 }
@@ -115,28 +117,14 @@ void EnumBoard::advancePhase() {
     mPhase = !mPhase;
 }
 
-IBoard::OptionalColour EnumBoard::getWinner() const {
-    OptionalColour result;
-
-    if (mHasWinningPosition[to_underlying(Colour::WHITE)]) result = Colour::WHITE;
-    if (mHasWinningPosition[to_underlying(Colour::BLACK)]) result = Colour::BLACK;
-    if (mHasWinningPosition.all()) result = {std::nullopt};
-
-    return result;
-}
-
 void EnumBoard::syncVictoryData() {
-    mHasWinningPosition.reset();
-
     checkHorizontal();
     checkVertical();
     checkPriDiagonal();
     checkSecDiagonal();
-
-    mHasEnded = mHasWinningPosition.any() || isFullyOccupied();
 }
 
-bool EnumBoard::isFullyOccupied() {
+bool EnumBoard::isFullyOccupied() const {
     return std::all_of(mGrid[0].begin(), mGrid[5].end(), [](auto e){return e.has_value();});
 }
 
