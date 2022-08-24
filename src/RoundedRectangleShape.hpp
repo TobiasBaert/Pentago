@@ -5,8 +5,6 @@
 #ifndef PENTAGO_ROUNDEDRECTANGLE_H_DATE_27_07_2022_TIME_21_33
 #define PENTAGO_ROUNDEDRECTANGLE_H_DATE_27_07_2022_TIME_21_33
 
-#define _USE_MATH_DEFINES // for pi / 2 as M_PI_2
-
 #include <array>
 #include <cmath>
 #include <SFML/Graphics/Shape.hpp>
@@ -48,25 +46,25 @@ public:
      * Returns the dimensions of the bounding box of the shape.
      * @return the width and height of the shape
      */
-    sf::Vector2f getSize() const;
+    [[maybe_unused]] sf::Vector2f getSize() const;
 
     /**
      * Sets the dimensions of the bounding box of the shape.
      * @param mSize the desired width and height
      */
-    void setSize(const sf::Vector2f& mSize);
+    [[maybe_unused]] void setSize(const sf::Vector2f& mSize);
 
     /**
      * Returns the radius of the corners.
      * @return the radius of the corners
      */
-    float getRadius() const;
+    [[maybe_unused]] float getRadius() const;
 
     /**
      * Sets the radius for the corners.
      * @param mRadius the desired radius
      */
-    void setRadius(float mRadius);
+    [[maybe_unused]] void setRadius(float mRadius);
 
     size_t getPointCount() const override;
     sf::Vector2f getPoint(std::size_t index) const override;
@@ -122,12 +120,12 @@ RoundedRectangleShape<pointsPerCorner>::RoundedRectangleShape(const sf::Vector2f
 }
 
 template<size_t pointsPerCorner>
-sf::Vector2f RoundedRectangleShape<pointsPerCorner>::getSize() const {
+[[maybe_unused]] sf::Vector2f RoundedRectangleShape<pointsPerCorner>::getSize() const {
     return {mOuterRect.width, mOuterRect.height};
 }
 
 template<size_t pointsPerCorner>
-void RoundedRectangleShape<pointsPerCorner>::setSize(const sf::Vector2f& size) {
+[[maybe_unused]] void RoundedRectangleShape<pointsPerCorner>::setSize(const sf::Vector2f& size) {
     mOuterRect.width = size.x;
     mOuterRect.height = size.y;
     updateInternals();
@@ -135,12 +133,12 @@ void RoundedRectangleShape<pointsPerCorner>::setSize(const sf::Vector2f& size) {
 }
 
 template<size_t pointsPerCorner>
-float RoundedRectangleShape<pointsPerCorner>::getRadius() const {
+[[maybe_unused]] float RoundedRectangleShape<pointsPerCorner>::getRadius() const {
     return mRadius;
 }
 
 template<size_t pointsPerCorner>
-void RoundedRectangleShape<pointsPerCorner>::setRadius(float radius) {
+[[maybe_unused]] void RoundedRectangleShape<pointsPerCorner>::setRadius(float radius) {
     mRadius = radius;
     updateInternals();
     update();
