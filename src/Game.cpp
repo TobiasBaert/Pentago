@@ -49,6 +49,9 @@ void Game::processEvents() {
             case sf::Event::Closed:
                 mWindow.close();
                 break;
+            case sf::Event::KeyPressed:
+                if (event.key.code == sf::Keyboard::R)
+                    pBoard->reset();
         default: break;
         }
 }
