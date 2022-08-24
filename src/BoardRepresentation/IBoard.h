@@ -114,6 +114,8 @@ public:
 
     /**
      * Place a marble of the currently playing colour in the cell at the given row and column.
+     *
+     * Fails silently without effect if the cell is already occupied.
      * @param row the global row, in the range [0,5]
      * @param col the global column, in the range [0,5]
      */
@@ -122,6 +124,8 @@ public:
     /**
      * Place a marble of the currently playing colour in the cell at the given row and column WITHIN a particular
      * quadrant.
+     *
+     * Fails silently without effect if the cell is already occupied.
      * @param q the quadrant
      * @param row the row within the quadrant, in the range [0,2]
      * @param col the column within the quadrant, in the range [0,2]

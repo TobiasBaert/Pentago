@@ -62,7 +62,10 @@ IBoard::OptionalColour EnumBoard::getColourAt(Quadrant q, size_t row, size_t col
 void EnumBoard::placeAt(size_t row, size_t col) {
     assert(getPhase() == Phase::PLACEMENT);
     assert(areValidGlobalCoords(row, col));
+    if (mGrid[row][col].has_value()) return;
+
     mGrid[row][col] = mTurn;
+
     syncQuadrantsFromGrid();
     syncVictoryData();
     advancePhase();
@@ -71,7 +74,10 @@ void EnumBoard::placeAt(size_t row, size_t col) {
 void EnumBoard::placeAt(Quadrant q, size_t row, size_t col) {
     assert(getPhase() == Phase::PLACEMENT);
     assert(areValidQuadrantCoords(row, col));
+    if (mQuadrants[to_underlying(q)][row][col].has_value()) return;
+
     mQuadrants[to_underlying(q)][row][col] = mTurn;
+
     syncGridFromQuadrants();
     syncVictoryData();
     advancePhase();

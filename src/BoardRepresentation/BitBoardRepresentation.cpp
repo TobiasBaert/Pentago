@@ -38,6 +38,8 @@ IBoard::OptionalColour BitBoardRepresentation::getColourAt(size_t row, size_t co
 void BitBoardRepresentation::placeAt(size_t row, size_t col) {
     assert(mPhase == Phase::PLACEMENT);
     assert(areValidGlobalCoords(row, col));
+    if (mOccupancy[getIndexFrom(row, col)]) return;
+
     mColours[to_underlying(mTurn)].set(getIndexFrom(row, col));
 
     syncDerivedData();
