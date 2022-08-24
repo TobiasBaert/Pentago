@@ -15,15 +15,15 @@ public:
 
     void reset() override;
 
-    [[nodiscard]] Colour getTurn() const override;
+    [[nodiscard]] Enums::Colour getTurn() const override;
 
-    [[nodiscard]] Phase getPhase() const override;
+    [[nodiscard]] Enums::Phase getPhase() const override;
 
     [[nodiscard]] OptionalColour getColourAt(size_t row, size_t col) const override;
 
     void placeAt(size_t row, size_t col) override;
 
-    void rotate(Quadrant q, RotationDir d) override;
+    void rotate(Enums::Quadrant q, Enums::RotationDir d) override;
 
     [[nodiscard]] bool hasEnded() const override;
 
@@ -33,12 +33,12 @@ private:
     using BitBoard = std::bitset<36>;
 
     /// Board state
-    Colour mTurn;
-    Phase mPhase;
+    Enums::Colour mTurn;
+    Enums::Phase mPhase;
 
     BitBoard mColours[2];
-    BitBoard& mWhite = mColours[to_underlying(Colour::WHITE)];
-    BitBoard& mBlack = mColours[to_underlying(Colour::BLACK)];
+    BitBoard& mWhite = mColours[Enums::to_underlying(Enums::Colour::WHITE)];
+    BitBoard& mBlack = mColours[Enums::to_underlying(Enums::Colour::BLACK)];
 
     /// Derived boards
     BitBoard mOccupancy;
@@ -53,10 +53,10 @@ private:
     inline void advancePhase();
 
     /// Rotations
-    inline void rotateQuadrant90Clockwise(Quadrant q);
-    inline void rotateQuadrant90CounterClockwise(Quadrant q);
-    inline void reflectQuadrantHorizontally(Quadrant q);
-    inline void reflectQuadrantDiagonally(Quadrant q);
+    inline void rotateQuadrant90Clockwise(Enums::Quadrant q);
+    inline void rotateQuadrant90CounterClockwise(Enums::Quadrant q);
+    inline void reflectQuadrantHorizontally(Enums::Quadrant q);
+    inline void reflectQuadrantDiagonally(Enums::Quadrant q);
 
     /// Utilities
     inline static size_t getIndexFrom(size_t row, size_t col);

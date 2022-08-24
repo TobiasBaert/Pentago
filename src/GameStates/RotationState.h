@@ -58,7 +58,7 @@ private:
      * setting the quadrant to be drawn last.
      * @param q the quadrant to be rotated
      */
-    void setRotatingQuadrant(Quadrant q);
+    void setRotatingQuadrant(Enums::Quadrant q);
 
     /**
      * Adjusts the rotation of the actively rotating quadrant in correspondence with the difference in the current

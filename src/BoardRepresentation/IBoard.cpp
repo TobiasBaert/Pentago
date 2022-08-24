@@ -4,13 +4,13 @@
 
 #include "IBoard.h"
 
-IBoard::OptionalColour IBoard::getColourAt(Quadrant q, size_t row, size_t col) const {
+IBoard::OptionalColour IBoard::getColourAt(Enums::Quadrant q, size_t row, size_t col) const {
     row += 3 * (to_underlying(q) / 2);
     col += 3 * (to_underlying(q) % 2);
     return getColourAt(row, col);
 }
 
-void IBoard::placeAt(Quadrant q, size_t row, size_t col) {
+void IBoard::placeAt(Enums::Quadrant q, size_t row, size_t col) {
     row += 3 * (to_underlying(q) / 2);
     col += 3 * (to_underlying(q) % 2);
     placeAt(row,col);

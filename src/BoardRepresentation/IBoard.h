@@ -8,72 +8,74 @@
 #include <optional>
 #include <type_traits>
 
-/**
- * The two playing colours.
- */
-enum class Colour : bool {
-    WHITE = true,
-    BLACK = false,
-};
+namespace Enums {
 
-/**
- * Inverts from one colour to the other.
- * @param c the colour to invert
- * @return if c is WHITE, return BLACK, otherwise return WHITE
- */
-inline Colour operator!(Colour c) {
-    return (c == Colour::WHITE ? Colour::BLACK : Colour::WHITE);
-}
+    /**
+     * The two playing colours.
+     */
+    enum class Colour : bool {
+        WHITE = true,
+        BLACK = false,
+    };
 
-/**
- * The two phases of every turn.
- */
-enum class Phase : size_t {
-    PLACEMENT = 0,
-    ROTATION = 1
-};
+    /**
+     * Inverts from one colour to the other.
+     * @param c the colour to invert
+     * @return if c is WHITE, return BLACK, otherwise return WHITE
+     */
+    inline Colour operator!(Colour c) {
+        return (c == Colour::WHITE ? Colour::BLACK : Colour::WHITE);
+    }
 
-/**
- * Inverts from one phase to the other.
- * @param p the phase to invert
- * @return if p is PLACEMENT, return ROTATION, otherwise return PLACEMENT
- */
-inline Phase operator!(Phase p) {
-    return (p == Phase::PLACEMENT ? Phase::ROTATION : Phase::PLACEMENT);
-}
+    /**
+     * The two phases of every turn.
+     */
+    enum class Phase : size_t {
+        PLACEMENT = 0,
+        ROTATION = 1
+    };
 
-/**
- * The two directions to rotate quadrants in.
- */
-enum class RotationDir : size_t {
-    CLOCKWISE = 0,
-    COUNTERCLOCKWISE
-};
+    /**
+     * Inverts from one phase to the other.
+     * @param p the phase to invert
+     * @return if p is PLACEMENT, return ROTATION, otherwise return PLACEMENT
+     */
+    inline Phase operator!(Phase p) {
+        return (p == Phase::PLACEMENT ? Phase::ROTATION : Phase::PLACEMENT);
+    }
 
-/**
- * The four names for the four 3x3 quadrants.
- */
-enum class Quadrant : size_t {
-    NORTHWEST = 0,
-    NORTHEAST,
-    SOUTHWEST,
-    SOUTHEAST
-};
+    /**
+     * The two directions to rotate quadrants in.
+     */
+    enum class RotationDir : size_t {
+        CLOCKWISE = 0,
+        COUNTERCLOCKWISE
+    };
+    /**
+     * The four names for the four 3x3 quadrants.
+     */
+    enum class Quadrant : size_t {
+        NORTHWEST = 0,
+        NORTHEAST,
+        SOUTHWEST,
+        SOUTHEAST
+    };
 
-/**
- * Converts an enum value to the corresponding value of the underlying type.
- * @tparam E the enum type get the underlying type from
- * @param e the enum value to convert to the underlying type
- * @return the enum value converted to the corresponding value of the underlying type
- */
-template<typename E>
-constexpr auto to_underlying(E e) noexcept {
-    return static_cast<typename std::underlying_type_t<E>>(e);
+    /**
+     * Converts an enum value to the corresponding value of the underlying type.
+     * @tparam E the enum type get the underlying type from
+     * @param e the enum value to convert to the underlying type
+     * @return the enum value converted to the corresponding value of the underlying type
+     */
+    template<typename E>
+    constexpr auto to_underlying(E e) noexcept {
+        return static_cast<typename std::__1::underlying_type_t<E>>(e);
+    }
 }
 
 class IBoard {
 public:
-    typedef std::optional<Colour> OptionalColour;
+    typedef std::optional<Enums::Colour> OptionalColour;
 
     virtual ~IBoard() = default;
 
@@ -86,13 +88,13 @@ public:
      * Return the colour currently playing.
      * @return the colour that is currently playing
      */
-    [[nodiscard]] virtual Colour getTurn() const = 0;
+    [[nodiscard]] virtual Enums::Colour getTurn() const = 0;
 
     /**
      * Return the phase of the current turn.
      * @return the phase of the current turn.
      */
-    [[nodiscard]] virtual Phase getPhase() const = 0;
+    [[nodiscard]] virtual Enums::Phase getPhase() const = 0;
 
     /**
      * Return the colour of the marble in the cell at the given row and column, if any.
@@ -110,7 +112,7 @@ public:
      * @return if a colour is present in the cell at given row and column within the chosen quadrant, otherwise
      * return an empty optional
      */
-    [[nodiscard]] virtual OptionalColour getColourAt(Quadrant q, size_t row, size_t col) const;
+    [[nodiscard]] virtual OptionalColour getColourAt(Enums::Quadrant q, size_t row, size_t col) const;
 
     /**
      * Place a marble of the currently playing colour in the cell at the given row and column.
@@ -130,14 +132,14 @@ public:
      * @param row the row within the quadrant, in the range [0,2]
      * @param col the column within the quadrant, in the range [0,2]
      */
-    virtual void placeAt(Quadrant q, size_t row, size_t col );
+    virtual void placeAt(Enums::Quadrant q, size_t row, size_t col );
 
     /**
      * Rotate a given quadrant 90 degrees in the given direction.
      * @param q the quadrant to rotate
      * @param d the direction to rotate in
      */
-    virtual void rotate(Quadrant q, RotationDir d) = 0;
+    virtual void rotate(Enums::Quadrant q, Enums::RotationDir d) = 0;
 
     /**
      * Checks if the game has reached an end condition.

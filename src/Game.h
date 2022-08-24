@@ -16,6 +16,7 @@
 #include "RotationState.h"
 #include "RoundedRectangleShape.hpp"
 #include "Utilities.h"
+#include "IBoard.h"
 
 class Game {
     friend class IState;
@@ -23,7 +24,7 @@ class Game {
     friend class RotationState;
 
 protected:
-    using OptionalQuadrant = std::optional<Quadrant>;
+    using OptionalQuadrant = std::optional<Enums::Quadrant>;
     using OptionalIntPair = std::optional<std::pair<int,int>>;
     using CoordinateTuple = std::tuple<OptionalQuadrant, OptionalIntPair>;
 
@@ -115,22 +116,22 @@ private:
      * The order the quadrants will be rendered in. Of particular importance is the last position, as this will be
      * drawn on top of all the others.
      */
-    std::array<Quadrant, 4> mQuadrantRenderOrder = {
-            Quadrant::NORTHWEST, Quadrant::NORTHEAST,
-            Quadrant::SOUTHWEST, Quadrant::SOUTHEAST
+    std::array<Enums::Quadrant, 4> mQuadrantRenderOrder = {
+            Enums::Quadrant::NORTHWEST, Enums::Quadrant::NORTHEAST,
+            Enums::Quadrant::SOUTHWEST, Enums::Quadrant::SOUTHEAST
     };
 
     /**
      * During the rotation phase, a single quadrant can be rotated.
      */
-    std::optional<std::pair<Quadrant,float>> mRotatingQuadrant;
+    std::optional<std::pair<Enums::Quadrant,float>> mRotatingQuadrant;
 
     /**
      * Retrieves the rotation for any quadrant.
      * @param q the quadrant
      * @return returns the stored rotation if q is equal to the rotated quadrant, otherwise returns 0.
      */
-    float getRotationFor(Quadrant q) const;
+    float getRotationFor(Enums::Quadrant q) const;
 
     /**
      * Configures the basic shape used to draw the quadrants. This centres the origin, sets the fill colour, outline
@@ -167,20 +168,20 @@ private:
      * This is useful during the rotation of a quadrant to ensure that its corners are still visible.
      * @param q the quadrant that should be rendered last
      */
-    void setQuadrantToRenderLast(Quadrant q);
+    void setQuadrantToRenderLast(Enums::Quadrant q);
 
     /**
      * Render a particular quadrant and all the cells therein.
      * @param q the quadrant to render
      */
-    void renderQuadrant(Quadrant q);
+    void renderQuadrant(Enums::Quadrant q);
 
     /**
      * Translates a board representation colour to a graphical framework colour.
      * @param c the colour to translate
      * @return returns, respectively, sf::White or sf::Black if c is, respectively, WHITE or BLACK
      */
-    static sf::Color toSFColor(Colour c);
+    static sf::Color toSFColor(Enums::Colour c);
 
     /**
      * Shorthand for creating translations.

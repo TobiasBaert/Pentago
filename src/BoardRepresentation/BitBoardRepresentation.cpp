@@ -3,6 +3,9 @@
 //
 
 #include "BitBoardRepresentation.h"
+#include "IBoard.h"
+
+using namespace Enums;
 
 BitBoardRepresentation::BitBoardRepresentation()
     : mTurn(Colour::WHITE)

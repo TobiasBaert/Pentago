@@ -18,19 +18,19 @@ public:
 
     void reset() override;
 
-    [[nodiscard]] Colour getTurn() const override;
+    [[nodiscard]] Enums::Colour getTurn() const override;
 
-    [[nodiscard]] Phase getPhase() const override;
+    [[nodiscard]] Enums::Phase getPhase() const override;
 
     [[nodiscard]] OptionalColour getColourAt(size_t row, size_t col) const override;
 
-    [[nodiscard]] OptionalColour getColourAt(Quadrant q, size_t row, size_t col) const override;
+    [[nodiscard]] OptionalColour getColourAt(Enums::Quadrant q, size_t row, size_t col) const override;
 
-    void placeAt(Quadrant q, size_t row, size_t col) override;
+    void placeAt(Enums::Quadrant q, size_t row, size_t col) override;
 
     void placeAt(size_t row, size_t col) override;
 
-    void rotate(Quadrant q, RotationDir d) override;
+    void rotate(Enums::Quadrant q, Enums::RotationDir d) override;
 
     [[nodiscard]] bool hasEnded() const override;
 
@@ -42,8 +42,8 @@ private:
     using Grid = std::array<std::array<OptionalColour, 6>, 6>;
     using QuadrantGrid = std::array<std::array<OptionalColour, 3>, 3>;
 
-    Colour mTurn;
-    Phase mPhase;
+    Enums::Colour mTurn;
+    Enums::Phase mPhase;
 
     void advanceTurn();
     void advancePhase();

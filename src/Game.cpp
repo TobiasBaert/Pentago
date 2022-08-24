@@ -8,6 +8,8 @@
 #include <memory>
 #include <optional>
 
+using namespace Enums;
+
 Game::Game() {
     configureQuadrantShapes();
     configureCellShapes();

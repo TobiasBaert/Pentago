@@ -4,6 +4,8 @@
 
 #include "EnumBoard.h"
 
+using namespace Enums;
+
 EnumBoard::EnumBoard()
                : mTurn(Colour::WHITE)
                , mPhase(Phase::PLACEMENT)

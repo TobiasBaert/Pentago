@@ -5,6 +5,7 @@
 #include "RotationState.h"
 
 #include "../Game.h"
+#include "IBoard.h"
 #include <cmath>
 #include <iostream>
 
@@ -53,7 +54,7 @@ float RotationState::getAngle() {
     return atan2(det, dot);
 }
 
-void RotationState::setRotatingQuadrant(Quadrant q) {
+void RotationState::setRotatingQuadrant(Enums::Quadrant q) {
     rGame.mRotatingQuadrant.emplace(q, 0.f);
     rGame.setQuadrantToRenderLast(q);
 }
@@ -67,8 +68,8 @@ void RotationState::doRotation() {
     assert(rGame.mRotatingQuadrant);
     auto [q, angle] = *(rGame.mRotatingQuadrant);
     if (75.f <= abs(angle) && abs(angle) <= 105.f) {
-        if (angle > 0) rGame.pBoard->rotate(q, RotationDir::CLOCKWISE);
-        else rGame.pBoard->rotate(q, RotationDir::COUNTERCLOCKWISE);
+        if (angle > 0) rGame.pBoard->rotate(q, Enums::RotationDir::CLOCKWISE);
+        else rGame.pBoard->rotate(q, Enums::RotationDir::COUNTERCLOCKWISE);
     }
     mStartAndEnd.reset();
     rGame.mRotatingQuadrant.reset();
