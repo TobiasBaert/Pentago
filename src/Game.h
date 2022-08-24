@@ -88,6 +88,21 @@ private:
     sf::CircleShape mCellShape {CIRCLE_RADIUS};
 
     /**
+     * The shape used as an overlay when the game has ended.
+     */
+    sf::RectangleShape mGameEndOverlay{{Game::SCREEN_SIZE, SCREEN_SIZE}};
+
+    /**
+     * The font used to write text over the end game overlay.
+     */
+    sf::Font mGameEndFont;
+
+    /**
+     * The text on the end game overlay.
+     */
+    sf::Text mGameEndText;
+
+    /**
      * An array that contains for every quadrant the transform that starts at the starts at the upper-left corner of
      * the window (i.e., the origin of the global coordinate system) and ends in the centre of the quadrant.
      *
@@ -146,6 +161,17 @@ private:
     void configureCellShapes();
 
     /**
+     * Configures the shape required for the overlay at the end of the game. This sets the colour and transparency.
+     */
+    void configureGameEndOverlay();
+
+    /**
+     * Configures the text that is displayed at the end of the game. This loads the font, sets size, colour, outline
+     * colour and outline thickness.
+     */
+    void configureGameEndFontAndText();
+
+    /**
      * Processes general events polled from the window.
      *
      * Currently does not support state specific event polling.
@@ -175,6 +201,11 @@ private:
      * @param q the quadrant to render
      */
     void renderQuadrant(Enums::Quadrant q);
+
+    /**
+     * Renders the overlay and associated text.
+     */
+    void renderGameEnd();
 
     /**
      * Translates a board representation colour to a graphical framework colour.

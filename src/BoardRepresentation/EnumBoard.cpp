@@ -118,6 +118,7 @@ void EnumBoard::advancePhase() {
 }
 
 void EnumBoard::syncVictoryData() {
+    mHasWinningPosition.reset();
     checkHorizontal();
     checkVertical();
     checkPriDiagonal();

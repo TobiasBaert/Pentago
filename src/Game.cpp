@@ -13,6 +13,8 @@ using namespace Enums;
 Game::Game() {
     configureQuadrantShapes();
     configureCellShapes();
+    configureGameEndOverlay();
+    configureGameEndFontAndText();
     mWindow.setFramerateLimit(60);
 }
 
@@ -34,6 +36,20 @@ void Game::configureCellShapes() {
     mCellShape.setFillColor(sf::Color{150,0,0});
     mCellShape.setOutlineColor(sf::Color::Black);
     mCellShape.setOutlineThickness(-2.f);
+}
+
+void Game::configureGameEndOverlay() {
+    mGameEndOverlay.setFillColor({0,0,0,32});
+}
+
+void Game::configureGameEndFontAndText() {
+    if (!mGameEndFont.loadFromFile("../resources/fonts/Comic_Sans_MS.ttf")) throw std::runtime_error("Can't load font");
+    mGameEndText.setFont(mGameEndFont);
+    mGameEndText.setFillColor(sf::Color::White);
+    mGameEndText.setOutlineColor(sf::Color::Black);
+    mGameEndText.setOutlineThickness(10.f);
+    mGameEndText.setCharacterSize(200);
+    mGameEndText.setStyle(sf::Text::Regular);
 }
 
 void Game::run() {
@@ -59,7 +75,8 @@ void Game::processEvents() {
 }
 
 void Game::processInputs() {
-    mSavedStates[to_underlying(pBoard->getTurnPhase())]->processInputs();
+    if (pBoard->getGamePhase() == Enums::GamePhase::PLAYING)
+        mSavedStates[to_underlying(pBoard->getTurnPhase())]->processInputs();
 }
 
 void Game::render() {
@@ -69,6 +86,8 @@ void Game::render() {
     for (auto q : mQuadrantRenderOrder) {
         renderQuadrant(q);
     }
+
+    if (pBoard->getGamePhase() != GamePhase::PLAYING) renderGameEnd();
 
     mWindow.display();
 }
@@ -89,6 +108,22 @@ void Game::renderQuadrant(const Quadrant q) {
             mWindow.draw(mCellShape, v * mCellTransforms[row][col]);
         }
     }
+}
+
+void Game::renderGameEnd() {
+    // opaque-ish overlay
+    mWindow.draw(mGameEndOverlay);
+
+    // set text
+    static const std::array<const std::string, 3> array = { "Draw!", "White wins!", "Black wins!" };
+    mGameEndText.setString(array[to_underlying(pBoard->getGamePhase()) - 1]);
+
+    // centre text
+    auto bounds = mGameEndText.getLocalBounds();
+    mGameEndText.setOrigin({bounds.width / 2, bounds.height / 2});
+    mGameEndText.setPosition(SCREEN_CENTRE);
+
+    mWindow.draw(mGameEndText);
 }
 
 sf::Transform Game::translation(sf::Vector2f t) {
