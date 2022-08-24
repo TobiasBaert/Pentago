@@ -9,28 +9,26 @@
 
 PlacementState::PlacementState(Game& game) : IState(game) {}
 
-void PlacementState::processEvent(sf::Event e) {
-    switch (e.type) {
-        case sf::Event::MouseButtonPressed:
-            if (e.mouseButton.button == sf::Mouse::Button::Left) {
-                pressStartPos = toVec2f(sf::Mouse::getPosition(rGame.mWindow));
+void PlacementState::processInputs() {
+    switch (mLMBState) {
+        case LMBState::IDLE:
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                mLMBState = LMBState::HELD;
+                pressStartPos = getMousePosition();
             }
             break;
-        case sf::Event::MouseButtonReleased:
-            if (e.mouseButton.button == sf::Mouse::Button::Left) {
-                pressEndPos = toVec2f(sf::Mouse::getPosition(rGame.mWindow));
-                processLMB();
+        case LMBState::HELD:
+            if (!sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                mLMBState = LMBState::IDLE;
+                processLMB(getMousePosition());
             }
-            break;
-        default:
             break;
     }
 }
 
-void PlacementState::processLMB() {
-    if (Util::distanceLessOrEqualTo(pressEndPos, pressStartPos, 5.f)) {
+void PlacementState::processLMB(sf::Vector2f pressEndPos) {
+    if (Util::distanceLessOrEqualTo(pressStartPos, pressEndPos, 5.f)) {
         auto [q, c] = rGame.getCoordinateTupleFromPosition(pressEndPos);
         if (q && c) rGame.pBoard->placeAt(*q, c->first, c->second);
     }
 }
-

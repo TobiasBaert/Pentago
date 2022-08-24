@@ -16,14 +16,26 @@ public:
 
     virtual ~IState() = default;
 
-    virtual void processEvent(sf::Event e) = 0;
+    /**
+     * Processes real-time inputs (specifically mouse clicks).
+     */
+    virtual void processInputs() = 0;
 
 protected:
     Game& rGame;
 
-    static sf::Vector2f toVec2f(sf::Vector2i p) {
-        return {static_cast<float>(p.x), static_cast<float>(p.y)};
-    }
+    /**
+     * Converts a vector of ints to a vector of floats.
+     * @param p the vector to convert
+     * @return a vector of floats that best approximates the original vector.
+     */
+    static sf::Vector2f toVec2f(sf::Vector2i p);
+
+    /**
+     * Shorthand for obtaining the position of the mouse, relative to the window.
+     * @return the mouse position, relative to the window.
+     */
+    [[nodiscard]] sf::Vector2f getMousePosition() const;
 };
 
 

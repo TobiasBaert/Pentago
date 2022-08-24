@@ -13,15 +13,41 @@
 
 class PlacementState : public IState {
 public:
+    /**
+     * Initialises the placement state as a state of the given game.
+     * @param game the game this state relates to
+     */
     explicit PlacementState(Game& game);
 
-    void processEvent(sf::Event e) override;
+    void processInputs() override;
 
 private:
-    sf::Vector2f pressStartPos;
-    sf::Vector2f pressEndPos;
+    /**
+     * The two possible states for the left mouse button (LMB).
+     *
+     * In the IDLE state, the values for pressStartPos has no meaning and should not be used.
+     */
+    enum class LMBState {
+        IDLE,
+        HELD,
+    };
 
-    void processLMB();
+    /**
+     * Current LMB state.
+     */
+    LMBState mLMBState = LMBState::IDLE;
+
+    /**
+     * The position, relative to the window, where the mouse is initially pressed.
+     */
+    sf::Vector2f pressStartPos;
+
+    /**
+     * Handle the mouse action that consists of pressing the LMB at the stored, initial position and depressing the
+     * LMB at the given position.
+     * @param pressEndPos the position where the LMB is lifted.
+     */
+    void processLMB(sf::Vector2f pressEndPos);
 
 };
 

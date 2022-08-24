@@ -18,6 +18,7 @@
 #include "Utilities.h"
 
 class Game {
+    friend class IState;
     friend class PlacementState;
     friend class RotationState;
 
@@ -120,6 +121,18 @@ private:
     };
 
     /**
+     * During the rotation phase, a single quadrant can be rotated.
+     */
+    std::optional<std::pair<Quadrant,float>> mRotatingQuadrant;
+
+    /**
+     * Retrieves the rotation for any quadrant.
+     * @param q the quadrant
+     * @return returns the stored rotation if q is equal to the rotated quadrant, otherwise returns 0.
+     */
+    float getRotationFor(Quadrant q) const;
+
+    /**
      * Configures the basic shape used to draw the quadrants. This centres the origin, sets the fill colour, outline
      * colour and outline thickness.
      */
@@ -131,7 +144,17 @@ private:
      */
     void configureCellShapes();
 
+    /**
+     * Processes general events polled from the window.
+     *
+     * Currently does not support state specific event polling.
+     */
     void processEvents();
+
+    /**
+     * Processes real-time inputs (specifically mouse clicks) depending on the current phase of the game.
+     */
+    void processInputs();
 
     /**
      * Draws all the quadrant and their cells.

@@ -12,10 +12,28 @@
 namespace Util {
 
     /**
+     * Converts an angle from radians to degrees.
+     * @param radians the angle in radians
+     * @return the same angle in degrees, with the same sign as the input.
+     */
+    inline double toDegrees(double radians) {
+        return radians * 180 / M_PI;
+    }
+
+    /**
+     * Converts an angle from degrees to radians.
+     * @param degrees the angle in degrees
+     * @return the same angle in radians, with the same sign as the input.
+     */
+    inline double toRadians(double degrees) {
+        return degrees * M_PI / 180;
+    }
+
+    /**
      * Calculates the square of the distance between two points.
      * @param first first point
      * @param second second point
-     * @return returns the square of the euclidean distance between the first and second point
+     * @return the square of the euclidean distance between the first and second point.
      */
     template<typename T>
     inline double squaredDistance(sf::Vector2<T> first, sf::Vector2<T> second) {

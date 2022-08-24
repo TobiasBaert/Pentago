@@ -5,6 +5,7 @@ target_sources(Pentago PRIVATE
         BoardRepresentation/EnumBoard.h
         BoardRepresentation/IBoard.cpp
         BoardRepresentation/IBoard.h
+        GameStates/IState.cpp
         GameStates/IState.h
         GameStates/PlacementState.cpp
         GameStates/PlacementState.h

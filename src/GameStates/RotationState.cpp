@@ -5,31 +5,73 @@
 #include "RotationState.h"
 
 #include "../Game.h"
-#include "../Utilities.h"
+#include <cmath>
+#include <iostream>
 
 RotationState::RotationState(Game& game) : IState(game) {}
 
-void RotationState::processEvent(sf::Event e) {
-    switch (e.type) {
-        case sf::Event::MouseButtonPressed:
-            if (e.mouseButton.button == sf::Mouse::Button::Left) {
-                pressStartPos = toVec2f(sf::Mouse::getPosition(rGame.mWindow));
+void RotationState::processInputs() {
+    switch (mLMBState) {
+        case LMBState::IDLE:
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                mLMBState = LMBState::HELD;
+                sf::Vector2f startPosRelToQuadrant;
+                auto q = rGame.getQuadrantFromPosition(getMousePosition(), startPosRelToQuadrant);
+                if (q) {
+                    mStartAndEnd = std::make_pair(startPosRelToQuadrant, startPosRelToQuadrant);
+                    setRotatingQuadrant(*q);
+                }
             }
             break;
-        case sf::Event::MouseButtonReleased:
-            if (e.mouseButton.button == sf::Mouse::Button::Left) {
-                pressEndPos = toVec2f(sf::Mouse::getPosition(rGame.mWindow));
-                processLMB();
+            
+        case LMBState::HELD:
+            if (mStartAndEnd) {
+                mStartAndEnd->second = getRelativeMousePosition();
+                syncRotation();
             }
-            break;
-        default:
+
+            if (!sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                mLMBState = LMBState::IDLE;
+                doRotation();
+            }
             break;
     }
 }
 
-void RotationState::processLMB() {
-    sf::Vector2f v;
-    auto q = rGame.getQuadrantFromPosition(pressEndPos, v);
-    if (q) rGame.pBoard->rotate(*q, RotationDir::COUNTERCLOCKWISE);
+sf::Vector2f RotationState::getRelativeMousePosition() {
+    assert(rGame.mRotatingQuadrant);
+    return rGame.mQuadrantTransforms[to_underlying(rGame.mRotatingQuadrant->first)]
+                .getInverse()
+                .transformPoint(getMousePosition());
 }
+
+float RotationState::getAngle() {
+    assert(mStartAndEnd);
+    auto [s,e] = *mStartAndEnd;
+    float dot = s.x * e.x + s.y * e.y;
+    float det = s.x * e.y - s.y * e.x;
+    return atan2(det, dot);
+}
+
+void RotationState::setRotatingQuadrant(Quadrant q) {
+    rGame.mRotatingQuadrant.emplace(q, 0.f);
+    rGame.setQuadrantToRenderLast(q);
+}
+
+void RotationState::syncRotation() {
+    auto rawAngle = static_cast<float>(Util::toDegrees(getAngle()));
+    rGame.mRotatingQuadrant->second = rawAngle;
+}
+
+void RotationState::doRotation() {
+    assert(rGame.mRotatingQuadrant);
+    auto [q, angle] = *(rGame.mRotatingQuadrant);
+    if (abs(angle) > 80) {
+        if (angle > 0) rGame.pBoard->rotate(q, RotationDir::CLOCKWISE);
+        else rGame.pBoard->rotate(q, RotationDir::COUNTERCLOCKWISE);
+    }
+    mStartAndEnd.reset();
+    rGame.mRotatingQuadrant.reset();
+}
+
 

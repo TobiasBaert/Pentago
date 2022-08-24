@@ -14,9 +14,10 @@ Game::Game() {
     mWindow.setFramerateLimit(60);
 }
 
-void Game::setQuadrantToRenderLast(Quadrant q) {
-    auto p = std::find(mQuadrantRenderOrder.begin(), mQuadrantRenderOrder.end(),q); // find
-    std::swap(*p, mQuadrantRenderOrder[3]); // swap
+float Game::getRotationFor(Quadrant q) const {
+    if (!mRotatingQuadrant) return 0.f;
+    auto [r,f] = *mRotatingQuadrant;
+    return (q == r ? f : 0.f);
 }
 
 void Game::configureQuadrantShapes() {
@@ -36,6 +37,7 @@ void Game::configureCellShapes() {
 void Game::run() {
     while (mWindow.isOpen()) {
         processEvents();
+        processInputs();
         render();
     }
 }
@@ -47,20 +49,12 @@ void Game::processEvents() {
             case sf::Event::Closed:
                 mWindow.close();
                 break;
-//            case sf::Event::MouseButtonPressed: {
-//                auto x = static_cast<float>(event.mouseButton.x);
-//                auto y = static_cast<float>(event.mouseButton.y);
-//                auto[q, c] = getCoordinateTupleFromPosition({x, y});
-//                std::cout << "A: " << x << ' ' << y << std::endl;
-//                std::cout << "Q: " << (q ? std::to_string(to_underlying(*q)) : "Nope") << std::endl;
-//                std::cout << "C1: " << (c ? std::to_string(c->first) : "Nope") << std::endl;
-//                std::cout << "C2: " << (c ? std::to_string(c->second) : "Nope") << std::endl;
-//                break;
-//                }
-        default:
-            // hand off to state for specific processing
-            mSavedStates[to_underlying(pBoard->getPhase())]->processEvent(event);
+        default: break;
         }
+}
+
+void Game::processInputs() {
+    mSavedStates[to_underlying(pBoard->getPhase())]->processInputs();
 }
 
 void Game::render() {
@@ -74,8 +68,13 @@ void Game::render() {
     mWindow.display();
 }
 
+void Game::setQuadrantToRenderLast(Quadrant q) {
+    auto p = std::find(mQuadrantRenderOrder.begin(), mQuadrantRenderOrder.end(),q); // find
+    std::swap(*p, mQuadrantRenderOrder[3]); // swap
+}
+
 void Game::renderQuadrant(const Quadrant q) {
-    auto v = sf::Transform(mQuadrantTransforms[to_underlying(q)]).rotate(0);
+    auto v = sf::Transform(mQuadrantTransforms[to_underlying(q)]).rotate(getRotationFor(q));
     mWindow.draw(mQuadrantShape, v);
 
     for (int row = 0; row < 3; row++) {
