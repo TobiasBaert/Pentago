@@ -10,6 +10,7 @@
 #include <SFML/Graphics/Shape.hpp>
 
 #include "compile_time/math.hpp"
+#include "Utilities.h"
 
 /**
  * This class defines a rectangle shape with rounded corners of a certain radius. The rounded corners are approximated
@@ -168,7 +169,7 @@ namespace {
 
     template<size_t pointsPerCorner>
     constexpr auto initThetas() {
-        constexpr float interval = M_PI_2 / ((float) pointsPerCorner - 1);
+        constexpr float interval = M_PI_2 / (pointsPerCorner - 1);
         return [] {
             std::array<float, pointsPerCorner> tmp{};
             for (size_t i = 0; i < pointsPerCorner; i++) tmp[i] = interval * (float) i;
@@ -177,19 +178,17 @@ namespace {
     }
 
     template<size_t pointsPerCorner>
-    constexpr auto initCosines(const std::array<float, pointsPerCorner>& thetas) {
-        std::array<float, pointsPerCorner> tmp{};
-        auto cosMap = [] (auto e) {return compile_time::cos(e);};
-        std::transform(thetas.cbegin(), thetas.cend(), tmp.begin(), cosMap);
-        return tmp;
+    constexpr auto initCosines(std::array<float, pointsPerCorner> thetas) {
+        constexpr auto cosMap = [] (auto e) {return compile_time::cos(e);};
+        std::transform(thetas.cbegin(), thetas.cend(), thetas.begin(), cosMap);
+        return thetas;
     }
 
     template<size_t pointsPerCorner>
-    constexpr auto initSines(const std::array<float, pointsPerCorner>& thetas) {
-        std::array<float, pointsPerCorner> tmp{};
-        auto sinMap = [] (auto e) {return compile_time::sin(e);};
-        std::transform(thetas.cbegin(), thetas.cend(), tmp.begin(), sinMap);
-        return tmp;
+    constexpr auto initSines(std::array<float, pointsPerCorner> thetas) {
+        constexpr auto sinMap = [] (auto e) {return compile_time::sin(e);};
+        std::transform(thetas.cbegin(), thetas.cend(), thetas.begin(), sinMap);
+        return thetas;
     }
 
 }
@@ -205,12 +204,11 @@ bool RoundedRectangleShape<pointsPerCorner>::withinLocalBounds(sf::Vector2f loca
     if (mInnerRect.contains(localPos)) return true;
 
     // produce a new position by clamping localPos to the inner rectangle
-    float clampedX = std::min(std::max(localPos.x, mInnerCorners[0].x), mInnerCorners[2].x);
-    float clampedY = std::min(std::max(localPos.y, mInnerCorners[0].y), mInnerCorners[2].y);
+    auto X = std::clamp(localPos.x, mInnerCorners[0].x, mInnerCorners[2].x);
+    auto Y = std::clamp(localPos.y, mInnerCorners[0].y, mInnerCorners[2].y);
 
     // calculate distance from clamped point to localPos
-    double squaredDistance = std::pow(clampedX - localPos.x, 2) + std::pow(clampedY - localPos.y, 2);
-    return squaredDistance <= std::pow(mRadius, 2);
+    return Util::distanceLessOrEqualTo(localPos, {X,Y}, mRadius);
 }
 
 template<size_t pointsPerCorner>
